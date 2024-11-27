@@ -360,15 +360,16 @@ static int max25014_parse_dt(struct max25014 *maxim)
 }
 #endif
 
-static int max25014_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+static int max25014_probe(struct i2c_client *cl)
 {
+	const struct i2c_device_id *id = i2c_client_get_device_id(cl);
 	struct max25014 *maxim;
 	int ret;
 
 	maxim = devm_kzalloc(&cl->dev, sizeof(struct max25014), GFP_KERNEL);
 	if (!maxim)
 		return -ENOMEM;
-
+	
 	maxim->client = cl;
 	maxim->dev = &cl->dev;
 	maxim->chipname = id->name;
