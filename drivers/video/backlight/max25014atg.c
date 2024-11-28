@@ -64,10 +64,10 @@
 #define MAX25014_ISET_DEFAULT_100 11U
 
 struct max25014_platform_data {
-    const char *name;
+	const char *name;
 	uint32_t initial_brightness;
 	uint32_t iset;
-    uint8_t strings[4];
+	uint8_t strings[4];
 };
 
 struct max25014;
