@@ -24,6 +24,22 @@ obj-$(CONFIG_TOUCHSCREEN_CHIPONE_ICN8318)	+= chipone_icn8318.o
 obj-$(CONFIG_TOUCHSCREEN_CHIPONE_ICN8505)	+= chipone_icn8505.o
 obj-$(CONFIG_TOUCHSCREEN_CY8CTMA140)	+= cy8ctma140.o
 obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6)       += cyttsp6.o
+cyttsp6-y := cyttsp6_core.o cyttsp6_mt_common.o
+cyttsp6-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_MT_A)      += cyttsp6_mta.o
+cyttsp6-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_MT_B)      += cyttsp6_mtb.o
+cyttsp6-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_BUTTON)    += cyttsp6_btn.o
+cyttsp6-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_PROXIMITY) += cyttsp6_proximity.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_DEVICETREE_SUPPORT)    += cyttsp6_devtree.o
+ifdef CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6
+obj-y += cyttsp6_platform.o
+endif
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_I2C)   += cyttsp6_i2c.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_SPI)   += cyttsp6_spi.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_LOADER)        += cyttsp6_loader.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_DEBUG_MDL)     += cyttsp6_debug.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_DEVICE_ACCESS) += cyttsp6_device_access.o
+obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP6_TEST_DEVICE_ACCESS_API)        += cyttsp6_test_device_access_api.o
 obj-$(CONFIG_TOUCHSCREEN_CYTTSP_CORE)	+= cyttsp_core.o
 obj-$(CONFIG_TOUCHSCREEN_CYTTSP_I2C)	+= cyttsp_i2c.o
 obj-$(CONFIG_TOUCHSCREEN_CYTTSP_SPI)	+= cyttsp_spi.o
