@@ -1,0 +1,133 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright 2025 GOcontroll B.V.
+ * Author: Maud Spierings <maudspierings@gocontroll.com>
+ */
+
+/dts-v1/;
+
+#include "imx8mp-tx8p-ml81-moduline-display-106.dtsi"
+
+/ {
+	model = "GOcontroll Moduline Display with BOE av101hdt-a10 display";
+
+	panel {
+		compatible = "boe,av101hdt-a10";
+		backlight = <&backlight>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_panel>;
+		enable-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio1 9 GPIO_ACTIVE_LOW>;
+		power-supply = <&reg_3v3_per>;
+
+		port {
+			panel_lvds_in: endpoint {
+				remote-endpoint = <&ldb_lvds_ch0>;
+			};
+		};
+	};
+};
+
+&i2c4 {
+	touchscreen@24 {
+		compatible = "cy,cyttsp6_i2c_adapter";
+		reg = <0x24>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_touch>;
+
+		cy,core {
+			cy,irq_gpio = <&gpio4 14 GPIO_ACTIVE_LOW>;
+			cy,rst_gpio = <&gpio4 13 GPIO_ACTIVE_LOW>;
+			cy,err_gpio = <&gpio1 5 GPIO_ACTIVE_LOW>;
+			
+			/* Enable cy,max_xfer_len to limit max I2C/SPI transfer length */
+			cy,max_xfer_len = <256>;
+			
+			cy,mt {
+				cy,inp_dev_name = "cyttsp6_mt";
+				/* CY_MT_FLAG_FLIP | CY_MT_FLAG_INV_X | CY_MT_FLAG_INV_Y */
+				/* cy,flags = <0x38>;*/
+				cy,abs =
+				/* ABS_MT_POSITION_X, CY_ABS_MIN_X, CY_ABS_MAX_X, 0, 0 */
+				<0x35 0 1280 0 0
+				/* ABS_MT_POSITION_Y, CY_ABS_MIN_Y, CY_ABS_MAX_Y, 0, 0 */
+				0x36 0 720 0 0
+				/* ABS_MT_PRESSURE, CY_ABS_MIN_P, CY_ABS_MAX_P, 0, 0 */
+				0x3a 0 255 0 0
+				/* CY_IGNORE_VALUE, CY_ABS_MIN_W, CY_ABS_MAX_W, 0, 0 */
+				0xffff 0 255 0 0
+				/* ABS_MT_TRACKING_ID, CY_ABS_MIN_T, CY_ABS_MAX_T, 0, 0 */
+				0x39 0 15 0 0
+				/* ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0 */
+				0x30 0 255 0 0
+				/* ABS_MT_TOUCH_MINOR, 0, 255, 0, 0 */
+				0x31 0 255 0 0
+				/* ABS_MT_ORIENTATION, -127, 127, 0, 0 */
+				0x34 0xffffff81 127 0 0
+				/* ABS_MT_TOOL_TYPE, 0, MT_TOOL_MAX, 0, 0 */
+				0x37 0 1 0 0
+				/* ABS_DISTANCE, 0, 255, 0, 0 */
+				0x19 0 255 0 0>;
+			};
+		};
+	};
+
+	backlight: backlight@6f {
+		reg = <0x6f>;
+		compatible = "maxim,max25014";
+		bl-name = "max25014";
+		default-brightness = <50>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_backlight>;
+		enable-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+		maxim,iset = <7>;
+		maxim,strings = <1 1 1 0>;
+	};
+};
+
+&iomuxc {
+	pinctrl_backlight: backlightgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04		0x156 /* COM pin 154 */
+		>;
+	};
+
+	pinctrl_panel: panelgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO07__GPIO1_IO07		0x156 /* COM pin 157 */
+			MX8MP_IOMUXC_GPIO1_IO09__GPIO1_IO09		0x156 /* COM pin 159 */
+		>;
+	};
+
+	pinctrl_touch: touchgrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO05__GPIO1_IO05		0x156 /* COM pin 155 */
+			MX8MP_IOMUXC_SAI1_TXD2__GPIO4_IO14		0x156 /* COM pin 113 */
+			MX8MP_IOMUXC_SAI1_TXD1__GPIO4_IO13		0x156 /* COM pin 114 */
+		>;
+	};
+};
+
+&lcdif2 {
+	status = "okay";
+};
+
+&ldb_lvds_ch0 {
+	remote-endpoint = <&panel_lvds_in>;
+};
+
+&lvds_bridge {
+	status = "okay";
+};
+
+&media_blk_ctrl {
+	/*
+	 * The LVDS panel on this device uses 75.33 MHz pixel clock,
+	 * set IMX8MP_VIDEO_PLL1 to 75.33 * 7 = 527.31 MHz so the LDB
+	 * serializer and LCDIFv3 scanout engine can reach accurate
+	 * pixel clock of exactly 75.33 MHz.
+	 */
+	assigned-clock-rates = <500000000>, <200000000>,
+						   <0>, <0>, <500000000>,
+						   <527310000>;
+};
