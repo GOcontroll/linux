@@ -130,43 +130,50 @@
 &iomuxc {
 	pinctrl_reg_12v_backlight: reg-12v-backlightgrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO09__GPIO1_IO09		0x3 /* COM pin 159 */
+			MX8MP_IOMUXC_GPIO1_IO09__GPIO1_IO09 /* COM pin 159 */
+			MX8MP_DSE_X1
 		>;
 	};
 
 	pinctrl_reg_1v2_pgood: reg-1v2-pgoodgrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SAI1_TXD3__GPIO4_IO15		0x140 /* COM pin 112 */
+			MX8MP_IOMUXC_SAI1_TXD3__GPIO4_IO15 /* COM pin 112 */
+			(MX8MP_PULL_UP | MX8MP_PULL_ENABLE)
 		>;
 	};
 
 	pinctrl_reg_1v8_pgood: reg-1v8-pgoodgrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SAI1_RXD6__GPIO4_IO08		0x140 /* COM pin 107 */
+			MX8MP_IOMUXC_SAI1_RXD6__GPIO4_IO08 /* COM pin 107 */
+			(MX8MP_PULL_UP | MX8MP_PULL_ENABLE)
 		>;
 	};
 
 	pinctrl_backlight: backlightgrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04		0x1 /* COM pin 154 */
+			MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04 /* COM pin 154 */
+			MX8MP_DSE_X1
 		>;
 	};
 
 	pinctrl_edp_en: edpengrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SAI1_TXD2__GPIO4_IO14		0x140 /* COM pin 113 */
+			MX8MP_IOMUXC_SAI1_TXD2__GPIO4_IO14 /* COM pin 113 */
+			(MX8MP_PULL_UP | MX8MP_PULL_ENABLE)
 		>;
 	};
 
 	pinctrl_edp_int: edpintgrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_SPDIF_EXT_CLK__GPIO5_IO05		0x140 /* COM pin 146 */
+			MX8MP_IOMUXC_SPDIF_EXT_CLK__GPIO5_IO05 /* COM pin 146 */
+			(MX8MP_PULL_UP | MX8MP_PULL_ENABLE)
 		>;
 	};
 
 	pinctrl_pwm1: pwm1grp {
 		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO01__PWM1_OUT		0x03 /* COM pin 42 */
+			MX8MP_IOMUXC_GPIO1_IO01__PWM1_OUT /* COM pin 42 */
+			MX8MP_DSE_X1
 		>;
 	};
 };
