@@ -277,6 +277,119 @@
 	};
 };
 
+/* bt */
+&sai2 {
+	#sound-dai-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai2>;
+	assigned-clocks = <&clk IMX8MP_CLK_SAI2>;
+	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <12288000>;
+	fsl,sai-mclk-direction-output;
+	status = "okay";
+};
+
+/* tas2505 */
+&sai6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sai6>;
+	status = "okay";
+	assigned-clocks = <&clk IMX8MP_CLK_SAI6>;
+	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
+	assigned-clock-rates = <12288000>;
+	fsl,sai-mclk-direction-output;
+};
+
+/* debug/external */
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1>;
+	status = "okay";
+};
+
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart2>;
+	uart-has-rtscts;
+	status = "okay";
+	
+	bluetooth { /* muRata 1YN/1DX */
+		compatible = "infineon,cyw43439-bt", "brcm,bcm4329-bt";
+		max-speed = <921600>;
+		brcm,bt-pcm-int-params = [03 02 00 00 00];
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_bt>;
+		device-wakeup-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+		shutdown-gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "host-wakeup";
+		vddio-supply = <&reg_3v3_per>;
+		vbat-supply = <&reg_3v3_per>;
+	};
+};
+
+&usb3_0 {
+	status = "okay";
+};
+
+&usb3_1 {
+	status = "okay";
+};
+
+&usb3_phy0 {
+	status = "okay";
+};
+
+&usb3_phy1 {
+	status = "okay";
+};
+
+&usb_dwc3_0 {
+	dr_mode = "peripheral";
+};
+
+&usb_dwc3_1 {
+	dr_mode = "host";
+};
+
+&usdhc2 {
+	max-frequency = <50000000>;
+	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
+	assigned-clock-rates = <50000000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2>;
+	mmc-pwrseq = <&wifi_powerseq>;
+	vmmc-supply = <&reg_3v3_per>;
+	
+	cap-power-off-card;
+	keep-power-in-suspend;
+	non-removable;
+	sd-uhs-sdr25;
+	
+	status = "okay";
+	
+	wifi@1 { /* muRata 1YN/1DX */
+		compatible = "infineon,cyw43439-fmac", "brcm,bcm4329-fmac";
+		reg = <1>;
+		brcm,board-type = "GOcontroll,moduline";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wl_int>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <13 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "host-wake";
+	};
+};
+
+&wdog1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_wdog>;
+	fsl,ext-reset-output;
+	status = "okay";
+};
+
 &iomuxc {
 	pinctrl_reg_1v8: reg-1v8-grp {
 		fsl,pins = <
@@ -495,117 +608,4 @@
 			MX8MP_DSE_X1
 		>;
 	};
-};
-
-/* bt */
-&sai2 {
-	#sound-dai-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_sai2>;
-	assigned-clocks = <&clk IMX8MP_CLK_SAI2>;
-	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
-	assigned-clock-rates = <12288000>;
-	fsl,sai-mclk-direction-output;
-	status = "okay";
-};
-
-/* tas2505 */
-&sai6 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_sai6>;
-	status = "okay";
-	assigned-clocks = <&clk IMX8MP_CLK_SAI6>;
-	assigned-clock-parents = <&clk IMX8MP_AUDIO_PLL1_OUT>;
-	assigned-clock-rates = <12288000>;
-	fsl,sai-mclk-direction-output;
-};
-
-/* debug/external */
-&uart1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart1>;
-	status = "okay";
-};
-
-&uart2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart2>;
-	uart-has-rtscts;
-	status = "okay";
-
-	bluetooth { /* muRata 1YN/1DX */
-		compatible = "infineon,cyw43439-bt", "brcm,bcm4329-bt";
-		max-speed = <921600>;
-		brcm,bt-pcm-int-params = [03 02 00 00 00];
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_bt>;
-		device-wakeup-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
-		shutdown-gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
-		interrupt-parent = <&gpio1>;
-		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
-		interrupt-names = "host-wakeup";
-		vddio-supply = <&reg_3v3_per>;
-		vbat-supply = <&reg_3v3_per>;
-	};
-};
-
-&usb3_0 {
-	status = "okay";
-};
-
-&usb3_1 {
-	status = "okay";
-};
-
-&usb3_phy0 {
-	status = "okay";
-};
-
-&usb3_phy1 {
-	status = "okay";
-};
-
-&usb_dwc3_0 {
-	dr_mode = "peripheral";
-};
-
-&usb_dwc3_1 {
-	dr_mode = "host";
-};
-
-&usdhc2 {
-	max-frequency = <50000000>;
-	assigned-clocks = <&clk IMX8MP_CLK_USDHC2>;
-	assigned-clock-rates = <50000000>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usdhc2>;
-	mmc-pwrseq = <&wifi_powerseq>;
-	vmmc-supply = <&reg_3v3_per>;
-
-	cap-power-off-card;
-	keep-power-in-suspend;
-	non-removable;
-	sd-uhs-sdr25;
-
-	status = "okay";
-
-	wifi@1 { /* muRata 1YN/1DX */
-		compatible = "infineon,cyw43439-fmac", "brcm,bcm4329-fmac";
-		reg = <1>;
-		brcm,board-type = "GOcontroll,moduline";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_wl_int>;
-		interrupt-parent = <&gpio1>;
-		interrupts = <13 IRQ_TYPE_LEVEL_LOW>;
-		interrupt-names = "host-wake";
-	};
-};
-
-&wdog1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_wdog>;
-	fsl,ext-reset-output;
-	status = "okay";
 };
