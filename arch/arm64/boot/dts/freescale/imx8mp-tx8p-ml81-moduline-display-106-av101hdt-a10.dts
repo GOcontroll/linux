@@ -118,22 +118,19 @@
 	status = "okay";
 };
 
-&ldb_lvds_ch0 {
-	remote-endpoint = <&panel_lvds_in>;
-};
-
 &lvds_bridge {
+	assigned-clocks = <&clk IMX8MP_CLK_MEDIA_LDB>,
+					  <&clk IMX8MP_VIDEO_PLL1>;
+	assigned-clock-parents = <&clk IMX8MP_VIDEO_PLL1_OUT>;
+	/* IMX8MP_VIDEO_PLL1 = IMX8MP_CLK_MEDIA_DISP2_PIX * 2 * 7 */
+	assigned-clock-rates = <0>, <1054620000>;
 	status = "okay";
-};
-
-&media_blk_ctrl {
-	/*
-	 * The LVDS panel on this device uses 75.33 MHz pixel clock,
-	 * set IMX8MP_VIDEO_PLL1 to 75.33 * 7 = 527.31 MHz so the LDB
-	 * serializer and LCDIFv3 scanout engine can reach accurate
-	 * pixel clock of exactly 75.33 MHz.
-	 */
-	assigned-clock-rates = <500000000>, <200000000>,
-						   <0>, <0>, <500000000>,
-						   <527310000>;
+	
+	ports {
+		port@1 {
+			ldb_lvds_ch0: endpoint {
+				remote-endpoint = <&panel_lvds_in>;
+			};
+		};
+	};
 };

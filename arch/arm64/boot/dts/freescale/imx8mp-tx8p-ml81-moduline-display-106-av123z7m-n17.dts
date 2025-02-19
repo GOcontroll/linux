@@ -140,9 +140,13 @@
 	 */
 	samsung,burst-clock-frequency = <535000000>;
 	status = "okay";
-};
 
-&mipi_dsi_out {
-	remote-endpoint = <&dsi_lvds_bridge_in>;
-	data-lanes = <1 2 3 4>;
+	ports {
+		port@1 {
+			mipi_dsi_out: endpoint {
+				remote-endpoint = < &dsi_lvds_bridge_in>;
+				data-lanes = <1 2 3 4>;
+			};
+		};
+	};
 };
