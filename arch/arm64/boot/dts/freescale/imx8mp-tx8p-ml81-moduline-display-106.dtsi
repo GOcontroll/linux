@@ -181,20 +181,20 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	cs-gpios = <
-	&gpio2 12 GPIO_ACTIVE_HIGH
-	&gpio1 11 GPIO_ACTIVE_HIGH
-	&gpio1 10 GPIO_ACTIVE_HIGH
+	&gpio2 12 GPIO_ACTIVE_LOW
+	&gpio1 11 GPIO_ACTIVE_LOW
+	&gpio1 10 GPIO_ACTIVE_LOW
 	>;
 	status = "okay";
 
 	spi@0 { /* Module slot 1 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <0>;
 		spi-max-frequency = <54000000>;
 	};
 
 	spi@1 { /* Module slot 2 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <1>;
 		spi-max-frequency = <54000000>;
 	};
