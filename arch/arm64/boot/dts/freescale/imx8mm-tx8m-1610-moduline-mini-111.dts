@@ -386,6 +386,84 @@
 	};
 };
 
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1>;
+	uart-has-rtscts;
+	status = "okay";
+	
+	bluetooth { /* muRata 1YN/1DX */
+		compatible = "infineon,cyw43439-bt", "brcm,bcm4329-bt";
+		max-speed = <921600>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_bt>;
+		device-wakeup-gpios = <&gpio5 13 GPIO_ACTIVE_HIGH>;
+		shutdown-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+		interrupt-parent = <&gpio3>;
+		interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "host-wakeup";
+		vddio-supply = <&reg_3v3_comm>;
+		vbat-supply = <&reg_3v3_comm>;
+	};
+};
+
+/* mPCIE modem */
+&uart2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart2>;
+	uart-has-rtscts;
+	status = "okay";
+};
+
+/* debug/external */
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart3>;
+	status = "okay";
+};
+
+&usbotg1 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usbotg2 {
+	dr_mode = "host";
+	status = "okay";
+};
+
+&usdhc2 {
+	max-frequency = <50000000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2>;
+	mmc-pwrseq = <&wifi_pwrseq>;
+	vmmc-supply = <&reg_3v3_comm>;
+	
+	cap-power-off-card;
+	keep-power-in-suspend;
+	non-removable;
+	sd-uhs-sdr25;
+	
+	status = "okay";
+	
+	wifi@1 { /* muRata 1YN/1DX */
+		compatible = "infineon,cyw43439-fmac", "brcm,bcm4329-fmac";
+		reg = <1>;
+		brcm,board-type = "GOcontroll,moduline";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_wl_int>;
+		interrupt-parent = <&gpio3>;
+		interrupts = <20 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-names = "host-wake";
+	};
+};
+
+&wdog1 {
+	status = "okay";
+};
+
 &iomuxc {
 	pinctrl_bt: btgrp {
 		fsl,pins = <
@@ -622,82 +700,4 @@
 			MX8MM_DSE_X1
 		>;
 	};
-};
-
-&uart1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart1>;
-	uart-has-rtscts;
-	status = "okay";
-
-	bluetooth { /* muRata 1YN/1DX */
-		compatible = "infineon,cyw43439-bt", "brcm,bcm4329-bt";
-		max-speed = <921600>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_bt>;
-		device-wakeup-gpios = <&gpio5 13 GPIO_ACTIVE_HIGH>;
-		shutdown-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
-		interrupt-parent = <&gpio3>;
-		interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
-		interrupt-names = "host-wakeup";
-		vddio-supply = <&reg_3v3_comm>;
-		vbat-supply = <&reg_3v3_comm>;
-	};
-};
-
-/* mPCIE modem */
-&uart2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart2>;
-	uart-has-rtscts;
-	status = "okay";
-};
-
-/* debug/external */
-&uart3 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart3>;
-	status = "okay";
-};
-
-&usbotg1 {
-	dr_mode = "peripheral";
-	status = "okay";
-};
-
-&usbotg2 {
-	dr_mode = "host";
-	status = "okay";
-};
-
-&usdhc2 {
-	max-frequency = <50000000>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usdhc2>;
-	mmc-pwrseq = <&wifi_pwrseq>;
-	vmmc-supply = <&reg_3v3_comm>;
-
-	cap-power-off-card;
-	keep-power-in-suspend;
-	non-removable;
-	sd-uhs-sdr25;
-
-	status = "okay";
-
-	wifi@1 { /* muRata 1YN/1DX */
-		compatible = "infineon,cyw43439-fmac", "brcm,bcm4329-fmac";
-		reg = <1>;
-		brcm,board-type = "GOcontroll,moduline";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_wl_int>;
-		interrupt-parent = <&gpio3>;
-		interrupts = <20 IRQ_TYPE_LEVEL_LOW>;
-		interrupt-names = "host-wake";
-	};
-};
-
-&wdog1 {
-	status = "okay";
 };
