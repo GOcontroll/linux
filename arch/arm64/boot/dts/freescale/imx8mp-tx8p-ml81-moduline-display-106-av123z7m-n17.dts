@@ -100,6 +100,32 @@
 	};
 };
 
+&lcdif1 {
+	status = "okay";
+};
+
+&mipi_dsi {
+	samsung,esc-clock-frequency = <12000000>;
+	/*
+	* burst has to be at least 2x dsi clock that the sn65dsi85 expects
+	* display pixelclock * bpp / lanes / 2 = dsi clock
+	* 88.000.000 * 24 / 4 / 2 = 264.000.000
+	* range gets rounded up to 265.000.000 - 270.000.000
+	* 267.500.000 * 2 = 535.000.000
+	*/
+	samsung,burst-clock-frequency = <535000000>;
+	status = "okay";
+	
+	ports {
+		port@1 {
+			mipi_dsi_out: endpoint {
+				remote-endpoint = < &dsi_lvds_bridge_in>;
+				data-lanes = <1 2 3 4>;
+			};
+		};
+	};
+};
+
 &iomuxc {
 	pinctrl_backlight: backlightgrp {
 		fsl,pins = <
@@ -122,31 +148,5 @@
 			MX8MP_IOMUXC_GPIO1_IO09__GPIO1_IO09 /* COM pin 159 */
 			MX8MP_DSE_X1
 		>;
-	};
-};
-
-&lcdif1 {
-	status = "okay";
-};
-
-&mipi_dsi {
-	samsung,esc-clock-frequency = <12000000>;
-	/*
-	 * burst has to be at least 2x dsi clock that the sn65dsi85 expects
-	 * display pixelclock * bpp / lanes / 2 = dsi clock
-	 * 88.000.000 * 24 / 4 / 2 = 264.000.000
-	 * range gets rounded up to 265.000.000 - 270.000.000
-	 * 267.500.000 * 2 = 535.000.000
-	 */
-	samsung,burst-clock-frequency = <535000000>;
-	status = "okay";
-
-	ports {
-		port@1 {
-			mipi_dsi_out: endpoint {
-				remote-endpoint = < &dsi_lvds_bridge_in>;
-				data-lanes = <1 2 3 4>;
-			};
-		};
 	};
 };
