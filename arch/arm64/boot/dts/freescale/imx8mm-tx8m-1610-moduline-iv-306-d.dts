@@ -195,34 +195,34 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	cs-gpios = <
-		&gpio1 9 GPIO_ACTIVE_HIGH
-		&gpio1 0 GPIO_ACTIVE_HIGH
-		&gpio5 2 GPIO_ACTIVE_HIGH
-		&gpio4 27 GPIO_ACTIVE_HIGH
-		&gpio3 1 GPIO_ACTIVE_HIGH
+		&gpio1 9 GPIO_ACTIVE_LOW
+		&gpio1 0 GPIO_ACTIVE_LOW
+		&gpio5 2 GPIO_ACTIVE_LOW
+		&gpio4 27 GPIO_ACTIVE_LOW
+		&gpio3 1 GPIO_ACTIVE_LOW
 	>;
 	status = "okay";
 
 	spi@0 { /* Module slot 3 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <0>;
 		spi-max-frequency = <54000000>;
 	};
 
 	spi@1 { /* Module slot 4 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <1>;
 		spi-max-frequency = <54000000>;
 	};
 
 	spi@2 { /* Module slot 5 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <2>;
 		spi-max-frequency = <54000000>;
 	};
 
 	spi@3 { /* Module slot 6 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <3>;
 		spi-max-frequency = <54000000>;
 	};
@@ -240,21 +240,21 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi2>;
 	cs-gpios = <
-		&gpio3 23  GPIO_ACTIVE_HIGH
-		&gpio5 9  GPIO_ACTIVE_HIGH
-		&gpio3 2  GPIO_ACTIVE_HIGH
-		&gpio5 25  GPIO_ACTIVE_HIGH
+		&gpio3 23  GPIO_ACTIVE_LOW
+		&gpio5 9  GPIO_ACTIVE_LOW
+		&gpio3 2  GPIO_ACTIVE_LOW
+		&gpio5 25  GPIO_ACTIVE_LOW
 	>;
 	status = "okay";
 
 	spi@0 { /* Module slot 7 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <0>;
 		spi-max-frequency = <54000000>;
 	};
 
 	spi@1 { /* Module slot 8 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <1>;
 		spi-max-frequency = <54000000>;
 	};
@@ -289,21 +289,21 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi3>;
 	cs-gpios = <
-		&gpio1 4 GPIO_ACTIVE_HIGH
-		&gpio1 10 GPIO_ACTIVE_HIGH
-		&gpio5 5 GPIO_ACTIVE_HIGH
-		&gpio5 4 GPIO_ACTIVE_HIGH
+		&gpio1 4 GPIO_ACTIVE_LOW
+		&gpio1 10 GPIO_ACTIVE_LOW
+		&gpio5 5 GPIO_ACTIVE_LOW
+		&gpio5 4 GPIO_ACTIVE_LOW
 	>;
 	status = "okay";
 
 	spi@0 { /* Module slot 1 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <0>;
 		spi-max-frequency = <54000000>;
 	};
 
 	spi@1 { /* Module slot 2 */
-		compatible = "rohm,dh2228fv";
+		compatible = "gocontroll,moduline-module-slot";
 		reg = <1>;
 		spi-max-frequency = <54000000>;
 	};
