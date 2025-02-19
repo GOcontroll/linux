@@ -185,10 +185,14 @@
 &mipi_dsi {
 	samsung,esc-clock-frequency = <12000000>;
 	status = "okay";
-};
 
-&mipi_dsi_out {
-	remote-endpoint = <&edp_bridge_in>;
+	ports {
+		port@1 {
+			mipi_dsi_out: endpoint {
+				remote-endpoint = <&edp_bridge_in>;
+			};
+		};
+	};
 };
 
 &pwm1 {
