@@ -374,6 +374,22 @@
 	};
 };
 
+&usdhc1 { /* eMMC */
+	max-frequency = <200000000>;
+	assigned-clocks = <&clk IMX8MM_CLK_USDHC1>;
+	assigned-clock-rates = <200000000>;
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-0 = <&pinctrl_usdhc1>;
+	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
+	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
+	bus-width = <8>;
+	vmmc-supply = <&reg_vdd_3v3>;
+	vqmmc-supply = <&reg_vdd_1v8>;
+	voltage-ranges = <3300 3300>;
+	non-removable;
+	status = "okay";
+};
+
 &iomuxc {
 	pinctrl_ethphy_int: etnphy-intgrp {
 		fsl,pins = <
@@ -532,20 +548,4 @@
 			(MX8MM_DSE_X6 | MX8MM_FSEL_FAST | MX8MM_PULL_UP | MX8MM_PULL_ENABLE)
 		>;
 	};
-};
-
-&usdhc1 { /* eMMC */
-	max-frequency = <200000000>;
-	assigned-clocks = <&clk IMX8MM_CLK_USDHC1>;
-	assigned-clock-rates = <200000000>;
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
-	pinctrl-0 = <&pinctrl_usdhc1>;
-	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
-	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
-	bus-width = <8>;
-	vmmc-supply = <&reg_vdd_3v3>;
-	vqmmc-supply = <&reg_vdd_1v8>;
-	voltage-ranges = <3300 3300>;
-	non-removable;
-	status = "okay";
 };
