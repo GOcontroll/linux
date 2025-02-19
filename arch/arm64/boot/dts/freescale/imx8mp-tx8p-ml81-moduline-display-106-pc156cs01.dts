@@ -127,6 +127,29 @@
 	};
 };
 
+&lcdif1 {
+	status = "okay";
+};
+
+&mipi_dsi {
+	samsung,esc-clock-frequency = <12000000>;
+	status = "okay";
+	
+	ports {
+		port@1 {
+			mipi_dsi_out: endpoint {
+				remote-endpoint = <&edp_bridge_in>;
+			};
+		};
+	};
+};
+
+&pwm1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_pwm1>;
+	status = "okay";
+};
+
 &iomuxc {
 	pinctrl_reg_12v_backlight: reg-12v-backlightgrp {
 		fsl,pins = <
@@ -176,27 +199,4 @@
 			MX8MP_DSE_X1
 		>;
 	};
-};
-
-&lcdif1 {
-	status = "okay";
-};
-
-&mipi_dsi {
-	samsung,esc-clock-frequency = <12000000>;
-	status = "okay";
-
-	ports {
-		port@1 {
-			mipi_dsi_out: endpoint {
-				remote-endpoint = <&edp_bridge_in>;
-			};
-		};
-	};
-};
-
-&pwm1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_pwm1>;
-	status = "okay";
 };
