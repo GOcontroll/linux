@@ -187,15 +187,33 @@
 	>;
 	status = "okay";
 
-	spi@0 { /* Module slot 1 */
+	connector@0 {
 		compatible = "gocontroll,moduline-module-slot";
 		reg = <0>;
+		reset-gpios = <&gpio5 10 GPIO_ACTIVE_LOW>;
+		sync-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
+		interrupt-parent = <&gpio4>;
+		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "ready";
+		3v3-supply = <&reg_3v3_per>;
+		5v0-supply = <&reg_5v0>;
+		power-supply = <&reg_6v4>;
+		slot-number = <1>;
 		spi-max-frequency = <54000000>;
 	};
 
-	spi@1 { /* Module slot 2 */
+	connector@1 {
 		compatible = "gocontroll,moduline-module-slot";
 		reg = <1>;
+		reset-gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+		sync-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
+		interrupt-names = "ready";
+		3v3-supply = <&reg_3v3_per>;
+		5v0-supply = <&reg_5v0>;
+		power-supply = <&reg_6v4>;
+		slot-number = <2>;
 		spi-max-frequency = <54000000>;
 	};
 
@@ -333,24 +351,12 @@
 	status = "okay";
 };
 
-&usb3_1 {
-	status = "okay";
-};
-
 &usb3_phy0 {
-	status = "okay";
-};
-
-&usb3_phy1 {
 	status = "okay";
 };
 
 &usb_dwc3_0 {
 	dr_mode = "peripheral";
-};
-
-&usb_dwc3_1 {
-	dr_mode = "host";
 };
 
 &usdhc2 {
@@ -425,18 +431,18 @@
 
 	pinctrl_ecspi1: ecspi1grp {
 		fsl,pins = <
-		MX8MP_IOMUXC_ECSPI1_MOSI__ECSPI1_MOSI /* COM pin 46 */
-		MX8MP_DSE_X4
-		MX8MP_IOMUXC_ECSPI1_MISO__ECSPI1_MISO /* COM pin 47 */
-		(MX8MP_DSE_X4 | MX8MP_HYS_SCHMITT)
-		MX8MP_IOMUXC_ECSPI1_SCLK__ECSPI1_SCLK /* COM pin 48 */
-		MX8MP_DSE_X4
-		MX8MP_IOMUXC_SD2_CD_B__GPIO2_IO12 /* COM pin 51 CS module 1 */
-		MX8MP_DSE_X1
-		MX8MP_IOMUXC_GPIO1_IO11__GPIO1_IO11 /* COM pin 162 CS module 2 */
-		MX8MP_DSE_X1
-		MX8MP_IOMUXC_GPIO1_IO10__GPIO1_IO10 /* COM pin 161 CS MCP3004 */
-		MX8MP_DSE_X1
+			MX8MP_IOMUXC_ECSPI1_MOSI__ECSPI1_MOSI /* COM pin 46 */
+			MX8MP_DSE_X4
+			MX8MP_IOMUXC_ECSPI1_MISO__ECSPI1_MISO /* COM pin 47 */
+			(MX8MP_DSE_X4 | MX8MP_HYS_SCHMITT)
+			MX8MP_IOMUXC_ECSPI1_SCLK__ECSPI1_SCLK /* COM pin 48 */
+			MX8MP_DSE_X4
+			MX8MP_IOMUXC_SD2_CD_B__GPIO2_IO12 /* COM pin 51 CS module 1 */
+			MX8MP_DSE_X1
+			MX8MP_IOMUXC_GPIO1_IO11__GPIO1_IO11 /* COM pin 162 CS module 2 */
+			MX8MP_DSE_X1
+			MX8MP_IOMUXC_GPIO1_IO10__GPIO1_IO10 /* COM pin 161 CS MCP3004 */
+			MX8MP_DSE_X1
 		>;
 	};
 
