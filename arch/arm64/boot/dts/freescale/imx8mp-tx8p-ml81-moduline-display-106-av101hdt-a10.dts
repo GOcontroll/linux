@@ -26,6 +26,15 @@
 			};
 		};
 	};
+
+	reg_vbus: regulator-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "usb-c-vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		power-supply = <&reg_6v4>;
+		regulator-always-on;
+	};
 };
 
 &i2c4 {
@@ -101,6 +110,37 @@
 		port@1 {
 			ldb_lvds_ch0: endpoint {
 				remote-endpoint = <&panel_lvds_in>;
+			};
+		};
+	};
+};
+
+&usb3_1 {
+	status = "okay";
+};
+
+&usb3_phy1 {
+	status = "okay";
+};
+
+&usb_dwc3_1 {
+	dr_mode = "host";
+
+	port {
+		usb1_hs_ep: endpoint {
+			remote-endpoint = <&high_speed_ep>;
+		};
+	};
+
+	connector {
+		compatible = "usb-c-connector";
+		pd-disable;
+		data-role = "host";
+		vbus-supply = <&reg_vbus>;
+
+		port {
+			high_speed_ep: endpoint {
+				remote-endpoint = <&usb1_hs_ep>;
 			};
 		};
 	};
