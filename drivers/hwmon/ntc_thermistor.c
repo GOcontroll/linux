@@ -16,6 +16,7 @@
 #include <linux/fixp-arith.h>
 #include <linux/iio/consumer.h>
 #include <linux/hwmon.h>
+#include <linux/of.h>
 
 enum ntc_thermistor_type {
 	TYPE_B57330V2103,
@@ -43,6 +44,7 @@ enum {
 	NTC_NCP15WB473,
 	NTC_NCP15WL333,
 	NTC_NCP15XH103,
+	NTC_NCP18XH103,
 	NTC_NCP18WB473,
 	NTC_NCP21WB473,
 	NTC_SSG1404001221,
@@ -57,6 +59,7 @@ static const struct platform_device_id ntc_thermistor_id[] = {
 	[NTC_NCP15WB473]      = { "ncp15wb473",      TYPE_NCPXXWB473 },
 	[NTC_NCP15WL333]      = { "ncp15wl333",      TYPE_NCPXXWL333 },
 	[NTC_NCP15XH103]      = { "ncp15xh103",      TYPE_NCPXXXH103 },
+	[NTC_NCP18XH103]      = { "ncp18xh103",      TYPE_NCPXXXH103 },
 	[NTC_NCP18WB473]      = { "ncp18wb473",      TYPE_NCPXXWB473 },
 	[NTC_NCP21WB473]      = { "ncp21wb473",      TYPE_NCPXXWB473 },
 	[NTC_SSG1404001221]   = { "ssg1404_001221",  TYPE_NCPXXWB473 },
@@ -610,7 +613,7 @@ static int ntc_thermistor_probe(struct platform_device *pdev)
 	struct device *hwmon_dev;
 	struct ntc_data *data;
 	int ret;
-
+	
 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -670,6 +673,8 @@ static const struct of_device_id ntc_match[] = {
 		.data = &ntc_thermistor_id[NTC_NCP15WL333] },
 	{ .compatible = "murata,ncp15xh103",
 		.data = &ntc_thermistor_id[NTC_NCP15XH103] },
+	{ .compatible = "murata,ncp18xh103",
+		.data = &ntc_thermistor_id[NTC_NCP18XH103] },
 	{ .compatible = "murata,ncp18wb473",
 		.data = &ntc_thermistor_id[NTC_NCP18WB473] },
 	{ .compatible = "murata,ncp21wb473",
@@ -695,7 +700,7 @@ MODULE_DEVICE_TABLE(of, ntc_match);
 static struct platform_driver ntc_thermistor_driver = {
 	.driver = {
 		.name = "ntc-thermistor",
-		.of_match_table = ntc_match,
+		.of_match_table = of_match_ptr(ntc_match),
 	},
 	.probe = ntc_thermistor_probe,
 	.id_table = ntc_thermistor_id,
