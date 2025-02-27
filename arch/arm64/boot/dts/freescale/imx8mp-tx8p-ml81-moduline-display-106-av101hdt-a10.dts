@@ -35,6 +35,18 @@
 		power-supply = <&reg_6v4>;
 		regulator-always-on;
 	};
+
+	thermistor-display {
+		compatible = "murata,ncp18xh103";
+		io-channels = <&adc 2>;
+		pullup-uv = <3300000>;
+		pullup-ohm = <10000>;
+		pulldown-ohm = <0>;
+	};
+};
+
+&adc {
+	#io-channel-cells = <1>;
 };
 
 &i2c4 {
