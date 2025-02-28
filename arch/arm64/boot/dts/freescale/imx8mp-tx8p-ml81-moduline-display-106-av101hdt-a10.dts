@@ -38,6 +38,7 @@
 
 	tmd: thermistor-display {
 		compatible = "murata,ncp18xh103";
+		label = "display-temp";
 		io-channels = <&adc 2>;
 		pullup-uv = <3300000>;
 		pullup-ohm = <10000>;
