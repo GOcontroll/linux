@@ -36,12 +36,13 @@
 		regulator-always-on;
 	};
 
-	thermistor-display {
+	tmd: thermistor-display {
 		compatible = "murata,ncp18xh103";
 		io-channels = <&adc 2>;
 		pullup-uv = <3300000>;
 		pullup-ohm = <10000>;
 		pulldown-ohm = <0>;
+		#thermal-sensor-cells = <0>;
 	};
 };
 
@@ -122,6 +123,28 @@
 		port@1 {
 			ldb_lvds_ch0: endpoint {
 				remote-endpoint = <&panel_lvds_in>;
+			};
+		};
+	};
+};
+
+&thermal_zones {
+	display-thermal {
+		polling-delay = <1000>;
+		polling-delay-passive = <1000>;
+		thermal-sensors = <&tmd>;
+
+		trips {
+			trip0 {
+				temperature = <75000>;
+				hysteresis = <5000>;
+				type = "hot";
+			};
+
+			trip1 {
+				temperature = <85000>;
+				hysteresis = <1000>;
+				type = "critical";
 			};
 		};
 	};
