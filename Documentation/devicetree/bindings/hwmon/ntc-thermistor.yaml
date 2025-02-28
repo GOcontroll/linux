@@ -60,6 +60,9 @@ description: |
   the figure illustrates where the voltage will be measured for the "connected
   ground" and "connected positive" cases.
 
+allOf:
+  - $ref: hwmon-common.yaml#
+
 properties:
   $nodename:
     pattern: "^thermistor(.*)?$"
@@ -120,6 +123,8 @@ properties:
     maxItems: 1
     description: IIO ADC channel to read the voltage over the resistor. Must
       always be specified.
+
+  label: true
 
 required:
   - compatible
