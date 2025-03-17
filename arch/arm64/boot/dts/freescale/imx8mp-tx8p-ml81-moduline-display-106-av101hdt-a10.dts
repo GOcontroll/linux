@@ -40,7 +40,7 @@
 		compatible = "murata,ncp18xh103";
 		label = "display-temp";
 		io-channels = <&adc 2>;
-		pullup-uv = <3300000>;
+		pullup-uv = <3230000>;
 		pullup-ohm = <10000>;
 		pulldown-ohm = <0>;
 		#thermal-sensor-cells = <0>;
