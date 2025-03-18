@@ -405,6 +405,14 @@
 	};
 };
 
+&gpu_2d {
+	status = "disabled";
+};
+
+&gpu_3d {
+	status = "disabled";
+};
+
 /* I2C2 bus to modules */
 &i2c2 {
 	clock-frequency = <400000>;
@@ -606,6 +614,18 @@
 		interrupts = <20 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-names = "host-wake";
 	};
+};
+
+&vpu_blk_ctrl {
+	status = "disabled";
+};
+
+&vpu_g1 {
+	status = "disabled";
+};
+
+&vpu_g2 {
+	status = "disabled";
 };
 
 &wdog1 {
