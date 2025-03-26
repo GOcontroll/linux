@@ -26,15 +26,6 @@
 		stdout-path = "serial2:115200n8";
 	};
 
-	reg_3v3_per: regulator-3v3-per {
-		compatible = "regulator-fixed";
-		regulator-name = "3v3-per";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
-		power-supply = <&reg_6v4>;
-	};
-
 	reg_3v3_m2: regulator-3v3-m2 {
 		compatible = "regulator-fixed";
 		regulator-name = "3v3-m.2";
@@ -210,7 +201,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -225,7 +216,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio5>;
 		interrupts = <21 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -240,7 +231,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio5>;
 		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -255,7 +246,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <26 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -267,7 +258,7 @@
 		compatible = "microchip,mcp3004";
 		reg = <4>;
 		spi-max-frequency = <2300000>;
-		vref-supply = <&reg_3v3_per>;
+		vref-supply = <&reg_vdd_3v3>;
 	};
 };
 
@@ -290,7 +281,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio3>;
 		interrupts = <19 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -305,7 +296,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio3>;
 		interrupts = <22 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -357,7 +348,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
@@ -372,7 +363,7 @@
 		sync-gpios = <>;
 		interrupt-parent = <&gpio5>;
 		interrupts = <20 IRQ_TYPE_EDGE_FALLING>;
-		vdd-supply = <&reg_3v3_per>;
+		vdd-supply = <&reg_vdd_3v3>;
 		vddp-supply = <&reg_5v0>;
 		vddhpp-supply = <&reg_6v4>;
 		i2c-bus = <&i2c2>;
