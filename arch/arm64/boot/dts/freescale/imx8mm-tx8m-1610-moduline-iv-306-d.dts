@@ -571,11 +571,14 @@
 
 &usbotg1 {
 	dr_mode = "peripheral";
+	disable-over-current;
 	status = "okay";
 };
 
 &usbotg2 {
 	dr_mode = "host";
+	vbus-supply = <&reg_5v0>; //TODO check if this is correct
+	disable-over-current;
 	status = "okay";
 };
 
