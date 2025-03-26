@@ -445,7 +445,7 @@
 			#size-cells = <0>;
 			reg = <0>;
 			color = <LED_COLOR_ID_RGB>;
-			label = "led1";
+			label = "case-led1";
 			
 			led@0 {
 				color = <LED_COLOR_ID_RED>;
@@ -468,7 +468,7 @@
 			#size-cells = <0>;
 			reg = <1>;
 			color = <LED_COLOR_ID_RGB>;
-			label = "led2";
+			label = "case-led2";
 
 			led@0 {
 				color = <LED_COLOR_ID_RED>;
@@ -491,7 +491,7 @@
 			#size-cells = <0>;
 			reg = <2>;
 			color = <LED_COLOR_ID_RGB>;
-			label = "led3";
+			label = "case-led3";
 
 			led@0 {
 				color = <LED_COLOR_ID_RED>;
@@ -514,7 +514,7 @@
 			#size-cells = <0>;
 			reg = <3>;
 			color = <LED_COLOR_ID_RGB>;
-			label = "led4";
+			label = "case-led4";
 
 			led@0 {
 				color = <LED_COLOR_ID_RED>;
