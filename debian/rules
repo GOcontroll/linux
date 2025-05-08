@@ -19,10 +19,10 @@
 	dh $@
 
 override_dh_auto_clean:
-	@make clean
+	@make -j`nproc` clean
 
 override_dh_auto_configure:
-	@make gocontroll_defconfig
+	@make -j`nproc` gocontroll_defconfig
 
 override_dh_auto_build:
 	@make -j`nproc` Image modules dtbs
@@ -30,7 +30,7 @@ override_dh_auto_build:
 override_dh_auto_install:
 	dh_install arch/arm64/boot/Image /boot/
 	dh_install arch/arm64/boot/dts/freescale/*moduline*.dtb /boot/
-	@make modules_install INSTALL_MOD_PATH=debian/linux-image-gocontroll/
+	@make -j`nproc` modules_install INSTALL_MOD_PATH=debian/linux-image-gocontroll/
 
 # dh_make generated override targets.
 # This is an example for Cmake (see <https://bugs.debian.org/641051>).
