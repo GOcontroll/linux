@@ -13,6 +13,7 @@
 
 	aliases {
 		ethernet0 = &eqos;
+		ethernet1 = &fec;
 		mmc1 = &usdhc2;
 		spi0 = &ecspi2; /* spidev number compatibility */
 		spi1 = &ecspi1; /* spidev number compatibility */
