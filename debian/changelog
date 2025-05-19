@@ -1,3 +1,11 @@
+linux-image-gocontroll (6.12.29) unstable; urgency=medium
+
+  * Version number from uname is cleaned up
+  * Removed critical temperature trips from displays
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.29
+
+ -- Maud Spierings <maudspierings@gocontroll>  Mon, 19 May 2025 09:27:58 +0200
+
 linux-image-gocontroll (6.12.28) unstable; urgency=medium
 
   * Fixed the ethernet interface number on the moduline display
