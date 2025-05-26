@@ -1,3 +1,10 @@
+linux-image-gocontroll (6.12.30) unstable; urgency=medium
+
+  * Fix bug in the st iio driver for the lis2dw12 on the moduline mini
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.30
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 26 May 2025 10:23:21 +0200
+
 linux-image-gocontroll (6.12.29) unstable; urgency=medium
 
   * Version number from uname is cleaned up
