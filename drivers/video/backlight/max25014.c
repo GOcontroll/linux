@@ -101,12 +101,17 @@ static uint8_t strings_mask(uint32_t *strings)
 static int max25014_register_control(struct regmap *regmap, uint32_t brt)
 {
 	uint32_t reg = TON_STEP * brt;
+	int ret;
 	/*
 	 * 18 bit number lowest, 2 bits in first register,
 	 * next lowest 8 in the L register, next 8 in the H register
 	 */
-	regmap_write(regmap, MAX25014_TON_1_4_LSB, reg & 0b00000011);
-	regmap_write(regmap, MAX25014_TON1L, (reg >> 2) & 0b11111111);
+	ret = regmap_write(regmap, MAX25014_TON_1_4_LSB, reg & 0b00000011);
+	if (ret != 0)
+		return ret;
+	ret = regmap_write(regmap, MAX25014_TON1L, (reg >> 2) & 0b11111111);
+	if (ret != 0)
+		return ret;
 	return regmap_write(regmap, MAX25014_TON1H, (reg >> 10) & 0b11111111);
 }
 
@@ -118,7 +123,7 @@ static int max25014_check_errors(struct max25014 *maxim)
 
 	ret = regmap_read(maxim->regmap, MAX25014_OPEN, &val);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 	if (val > 0) {
 		dev_err(maxim->dev, "Open led strings detected on:\n");
 		for (i = 0; i < 4; i++) {
@@ -131,7 +136,7 @@ static int max25014_check_errors(struct max25014 *maxim)
 
 	ret = regmap_read(maxim->regmap, MAX25014_SHORT_GND, &val);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 	if (val > 0) {
 		dev_err(maxim->dev, "Short to ground detected on:\n");
 		for (i = 0; i < 4; i++) {
@@ -144,7 +149,7 @@ static int max25014_check_errors(struct max25014 *maxim)
 
 	ret = regmap_read(maxim->regmap, MAX25014_SHORT_GND, &val);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 	if (val > 0) {
 		dev_err(maxim->dev, "Shorted led detected on:\n");
 		for (i = 0; i < 4; i++) {
@@ -157,7 +162,7 @@ static int max25014_check_errors(struct max25014 *maxim)
 
 	ret = regmap_read(maxim->regmap, MAX25014_DIAG, &val);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 	/* 
 	 * The HW_RST bit always starts at 1 after power up.
 	 * It is reset on first read, does not indicate an error.
@@ -177,6 +182,8 @@ static int max25014_check_errors(struct max25014 *maxim)
 		return -EIO;
 	}
 	return 0;
+i2c_err:
+	return dev_err_probe(maxim->dev, ret, "Could not read errors\n");
 }
 
 /*
@@ -194,28 +201,35 @@ static int max25014_configure(struct max25014 *maxim)
 	ret = regmap_write(maxim->regmap, MAX25014_DISABLE,
 			   strings_mask(maxim->pdata->strings));
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 
 	ret = regmap_write(maxim->regmap, MAX25014_IMODE, MAX25014_DIM_MODE);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 
-	max25014_register_control(maxim->regmap,
+	ret = max25014_register_control(maxim->regmap,
 				  maxim->pdata->initial_brightness);
+	if (ret != 0)
+		goto i2c_err;
 
 	ret = regmap_read(maxim->regmap, MAX25014_SETTING, &val);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 
 	ret = regmap_write(
 		maxim->regmap, MAX25014_SETTING,
 		val & ~MAX25014_FPWM);
 	if (ret != 0)
-		return ret;
+		goto i2c_err;
 
 	ret = regmap_write(maxim->regmap, MAX25014_ISET,
 			   maxim->pdata->iset | MAX25014_ENABLE | MAX25014_PSEN);
-	return ret;
+	if (ret != 0)
+		goto i2c_err;
+
+	return 0;
+i2c_err:
+	return dev_err_probe(maxim->dev, ret, "Could not configure\n");
 }
 
 static int max25014_update_status(struct backlight_device *bl_dev)
@@ -225,9 +239,7 @@ static int max25014_update_status(struct backlight_device *bl_dev)
 	if (bl_dev->props.state & BL_CORE_SUSPENDED)
 		bl_dev->props.brightness = 0;
 
-	max25014_register_control(maxim->regmap, bl_dev->props.brightness);
-
-	return 0;
+	return max25014_register_control(maxim->regmap, bl_dev->props.brightness);
 }
 
 static const struct backlight_ops max25014_bl_ops = {
@@ -290,8 +302,7 @@ static int max25014_parse_dt(struct max25014 *maxim)
 	int res;
 
 	if (!node) {
-		dev_err(dev, "no platform data\n");
-		return -EINVAL;
+		return dev_err_probe(dev, -EINVAL, "no platform data\n");
 	}
 
 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
@@ -302,8 +313,7 @@ static int max25014_parse_dt(struct max25014 *maxim)
 	if (res == 4) {
 		of_property_read_u32_array(node, "maxim,strings", pdata->strings, 4);
 	} else {
-		dev_err(dev, "strings property not correctly defined\n");
-		return -EINVAL;
+		dev_err_probe(dev, -EINVAL, "strings property not correctly defined\n");
 	}
 
 	of_property_read_string(node, "bl-name", &pdata->name);
@@ -313,17 +323,15 @@ static int max25014_parse_dt(struct max25014 *maxim)
 	of_property_read_u32(node, "maxim,iset", &pdata->iset);
 
 	if (pdata->iset < 0 || pdata->iset > 15) {
-		dev_err(dev,
+		return dev_err_probe(dev, -EINVAL,
 			"Invalid iset, should be a value from 0-15, entered was %d\n",
 			pdata->iset);
-		return -EINVAL;
 	}
 
 	if (pdata->initial_brightness < 0 || pdata->initial_brightness > 100) {
-		dev_err(dev,
+		return dev_err_probe(dev, -EINVAL,
 			"Invalid initial brightness, should be a value from 0-100, entered was %d\n",
 			pdata->initial_brightness);
-		return -EINVAL;
 	}
 
 	maxim->pdata = pdata;
@@ -371,8 +379,8 @@ static int max25014_probe(struct i2c_client *cl)
 	if (maxim->vin) {
 		ret = regulator_enable(maxim->vin);
 		if (ret < 0) {
-			dev_err(maxim->dev, "failed to enable Vin: %d\n", ret);
-			return ret;
+			return dev_err_probe(maxim->dev, ret,
+					     "failed to enable Vin\n");
 		}
 	}
 
