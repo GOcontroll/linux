@@ -1,3 +1,10 @@
+linux-image-gocontroll (6.12.33) unstable; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.33
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.32
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Fri, 13 Jun 2025 08:57:42 +0200
+
 linux-image-gocontroll (6.12.31) unstable; urgency=medium
 
   * Enabled imx8mp ISP driver for future camera use
