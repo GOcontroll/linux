@@ -1,3 +1,11 @@
+linux-image-gocontroll (6.12.31) unstable; urgency=medium
+
+  * Enabled imx8mp ISP driver for future camera use
+  * Improved error messages in the max25014 driver
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.31
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 02 Jun 2025 16:12:16 +0200
+
 linux-image-gocontroll (6.12.30) unstable; urgency=medium
 
   * Fix bug in the st iio driver for the lis2dw12 on the moduline mini
