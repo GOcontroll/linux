@@ -1,3 +1,10 @@
+linux-image-gocontroll (6.12.36) unstable; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.36
+  * Added the hardware version 1.07 moduline display
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 07 Jul 2025 10:20:33 +0200
+
 linux-image-gocontroll (6.12.35) unstable; urgency=medium
 
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.35
