@@ -1,3 +1,9 @@
+linux-image-gocontroll (6.12.41) unstable; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.41
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Fri, 01 Aug 2025 13:04:43 +0200
+
 linux-image-gocontroll (6.12.40) unstable; urgency=medium
 
   * The out of tree bug fix for the st iio driver from 6.12.30 is now part of
