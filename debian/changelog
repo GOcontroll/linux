@@ -1,3 +1,10 @@
+linux-image-gocontroll (6.12.42) unstable; urgency=medium
+
+  * Backported GPU and video decoding improvements
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.42
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 18 Aug 2025 10:32:25 +0200
+
 linux-image-gocontroll (6.12.41) unstable; urgency=medium
 
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.41
