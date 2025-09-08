@@ -1,3 +1,9 @@
+linux-image-gocontroll (6.12.45) unstable; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.45
+
+ -- Maud Spierings <maudspierings@gocontroll>  Mon, 08 Sep 2025 15:28:22 +0200
+
 linux-image-gocontroll (6.12.44) unstable; urgency=medium
 
   * Backported a rkisp1 fix allowing capture of a single frame
