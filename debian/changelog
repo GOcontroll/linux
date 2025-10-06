@@ -1,3 +1,14 @@
+linux-image-gocontroll (6.12.50) unstable; urgency=medium
+
+  * Fix the moduleslot 4 reset pinmux on the Moduline IV 306-d
+  * Fix the ordering of rohm,bd71847 properties (tx8m-1610)
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.50
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.49
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.48
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.47
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 06 Oct 2025 09:27:49 +0200
+
 linux-image-gocontroll (6.12.46) unstable; urgency=medium
 
   * Make shutdown actually shut down on the tx8m-1610
