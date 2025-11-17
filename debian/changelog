@@ -1,3 +1,12 @@
+linux-image-gocontroll (6.12.58) unstable; urgency=medium
+
+  * Backport fix for the PMIC on the TX8M-1610 SoM
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.58
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.57
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.56
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 17 Nov 2025 14:34:48 +0100
+
 linux-image-gocontroll (6.12.55) unstable; urgency=medium
 
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.55
