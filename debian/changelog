@@ -1,3 +1,11 @@
+linux-image-gocontroll (6.12.60) unstable; urgency=medium
+
+  * disable more unused configs, enable things for crypto accel and podman
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.60
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.59
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 01 Dec 2025 14:51:28 +0100
+
 linux-image-gocontroll (6.12.58) unstable; urgency=medium
 
   * Backport fix for the PMIC on the TX8M-1610 SoM
