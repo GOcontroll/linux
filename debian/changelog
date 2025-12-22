@@ -1,6 +1,15 @@
+linux-image-gocontroll (6.12.63) unstable; urgency=medium
+
+  * Enable some usb related configs, mainly usb mass storage
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.63
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.62
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.61
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Mon, 22 Dec 2025 15:21:19 +0100
+
 linux-image-gocontroll (6.12.60) unstable; urgency=medium
 
-  * disable more unused configs, enable things for crypto accel and podman
+  * Disable more unused configs, enable things for crypto accel and podman
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.60
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.59
 
