@@ -1,3 +1,9 @@
+linux-image-gocontroll (6.12.67) unstable; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.67
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Fri, 23 Jan 2026 13:33:18 +0100
+
 linux-image-gocontroll (6.12.66) unstable; urgency=medium
 
   * Enable the gs_usb driver for CAN over USB
