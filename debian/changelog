@@ -1,3 +1,10 @@
+linux-image-gocontroll (6.12.69) unstable; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.69
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.68
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Tue, 10 Feb 2026 09:24:22 +0100
+
 linux-image-gocontroll (6.12.67) unstable; urgency=medium
 
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.67
