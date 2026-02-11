@@ -8,7 +8,7 @@
 
 / {
 	chassis-type = "embedded";
-	compatible = "gocontroll,moduline-display", "fsl,imx8mp";
+	compatible = "gocontroll,moduline-display-106", "karo,tx8p-ml81", "fsl,imx8mp";
 	hardware =  "Moduline Display V1.06";
 
 	aliases {
