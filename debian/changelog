@@ -1,3 +1,12 @@
+linux-image-gocontroll (6.12.70) unstable; urgency=medium
+
+  * Build a kernel fit image to make booting from barebox better
+  * Match the devicetree compatibles of the boards match the upstream
+    compatibles
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.70
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Wed, 11 Feb 2026 16:42:42 +0100
+
 linux-image-gocontroll (6.12.69) unstable; urgency=medium
 
   * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.69
