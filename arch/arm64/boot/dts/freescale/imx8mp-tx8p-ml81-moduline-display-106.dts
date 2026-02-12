@@ -4,12 +4,15 @@
  * Author: Maud Spierings <maudspierings@gocontroll.com>
  */
 
+/dts-v1/;
+
 #include "imx8mp-tx8p-ml81.dtsi"
 
 / {
 	chassis-type = "embedded";
-	compatible = "gocontroll,moduline-display-107", "karo,tx8p-ml81", "fsl,imx8mp";
-	hardware =  "Moduline Display V1.07";
+	compatible = "gocontroll,moduline-display-106", "karo,tx8p-ml81", "fsl,imx8mp";
+	hardware = "Moduline Display V1.06";
+	model = "GOcontroll Moduline Display baseboard";
 
 	aliases {
 		ethernet0 = &eqos;
@@ -63,9 +66,11 @@
 		regulator-name = "1v8-per";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_reg_1v8>;
+		gpio = <&gpio3 25 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 		power-supply = <&reg_3v3_per>;
-
 	};
 
 	reg_3v3_per: regulator-3v3-per {
@@ -396,6 +401,13 @@
 };
 
 &iomuxc {
+	pinctrl_reg_1v8: reg-1v8-grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI5_MCLK__GPIO3_IO25 /* COM pin 144 */
+			MX8MP_DSE_X1
+		>;
+	};
+
 	pinctrl_reg_5v0_sensor: reg-5v0-sensorgrp {
 		fsl,pins = <
 			MX8MP_IOMUXC_SAI1_RXD7__GPIO4_IO09 /* COM pin 108 */
