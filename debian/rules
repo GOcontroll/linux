@@ -29,7 +29,8 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	dh_install arch/arm64/boot/Image /boot/
-	dh_install arch/arm64/boot/dts/freescale/*moduline*.dtb /boot/
+	dh_install arch/arm64/boot/dts/freescale/*moduline*.dtb* /boot/
+	dh_install debian/entries/* /loader/entries/
 	@make -j`nproc` modules_install INSTALL_MOD_PATH=debian/linux-image-gocontroll/ LOCALVERSION=-GOcontroll
 
 # dh_make generated override targets.

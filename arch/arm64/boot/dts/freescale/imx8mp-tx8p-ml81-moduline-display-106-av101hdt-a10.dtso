@@ -4,11 +4,15 @@
  * Author: Maud Spierings <maudspierings@gocontroll.com>
  */
 
+#include <dt-bindings/clock/imx8mp-clock.h>
+#include <dt-bindings/gpio/gpio.h>
+
+#include "imx8mp-pinfunc.h"
+
 /dts-v1/;
+/plugin/;
 
-#include "imx8mp-tx8p-ml81-moduline-display-106.dtsi"
-
-/ {
+&{/} {
 	model = "GOcontroll Moduline Display with BOE av101hdt-a10 display";
 
 	panel {
@@ -52,6 +56,9 @@
 };
 
 &i2c4 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	touchscreen@24 {
 		compatible = "cy,cyttsp6_i2c_adapter";
 		reg = <0x24>;

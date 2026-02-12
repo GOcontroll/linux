@@ -4,11 +4,15 @@
  * Author: Maud Spierings <maudspierings@gocontroll.com>
  */
 
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#include "imx8mp-pinfunc.h"
+
 /dts-v1/;
+/plugin/;
 
-#include "imx8mp-tx8p-ml81-moduline-display-106.dtsi"
-
-/ {
+&{/} {
 	model = "GOcontroll Moduline Display with HKC pc156cs01 display";
 
 	backlight: backlight {
@@ -70,6 +74,9 @@
 };
 
 &i2c4 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	bridge@2d {
 		compatible = "ti,sn65dsi86";
 		reg = <0x2d>;
