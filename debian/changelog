@@ -1,3 +1,18 @@
+linux-image-gocontroll (6.12.79) UNRELEASED; urgency=medium
+
+  * Add additional config options for containers
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.79
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.78
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.77
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.76
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.75
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.74
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.73
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.72
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.71
+
+ -- Maud Spierings <maudspierings@gocontroll.com>  Thu, 02 Apr 2026 10:54:07 +0200
+
 linux-image-gocontroll (6.12.70) unstable; urgency=medium
 
   * Use blspec to boot the correct devicetree
