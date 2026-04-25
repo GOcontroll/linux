@@ -478,3 +478,12 @@ CONFIG_DEBUG_WX=y
 CONFIG_PANIC_ON_OOPS=y
 CONFIG_PANIC_TIMEOUT=-1
 # CONFIG_RUNTIME_TESTING_MENU is not set
+
+# --- U-Boot Falcon Mode boot-time optimisations (gocontroll-6.12.79-uboot) ---
+CONFIG_KERNEL_ZSTD=y
+# CONFIG_EFI_ZBOOT is not set
+CONFIG_CMDLINE=""
+# CONFIG_CMDLINE_EXTEND is not set
+# CONFIG_CMDLINE_FORCE is not set
+# CONFIG_DEBUG_INFO is not set
+CONFIG_DEBUG_INFO_NONE=y
