@@ -77,7 +77,14 @@
 		pinctrl-0 = <&pinctrl_ethphy_rst>;
 		reset-gpios = <&gpio1 29 GPIO_ACTIVE_LOW>;
 		reset-delay-us = <25000>;
-		reset-post-delay-us = <100>;
+		/*
+		 * SMSC LAN872xA (TX8M-1610 PHY) needs ~16 ms typical
+		 * (50 ms safe) after reset deassertion before MDIO is
+		 * accessible. Original 100 µs was way too short — MDIO
+		 * scan ran before PHY was ready and got "device at
+		 * address 0 is missing", end0 then DOWN forever.
+		 */
+		reset-post-delay-us = <50000>;
 
 		ethphy0: ethernet-phy@0 {
 			reg = <0>;
