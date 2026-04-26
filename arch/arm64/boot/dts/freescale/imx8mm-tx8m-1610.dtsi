@@ -401,7 +401,31 @@
 	status = "okay";
 };
 
+/*
+ * WDOG_B (GPIO1_IO02) is op de TX8M-1610 SoM hardwired naar de BD71837
+ * PMIC's reset-input. Reboot moet via dit externe pin om een echte
+ * power-cycle te triggeren — internal SoC SRS reset alleen laat de
+ * PMIC aan en geeft half-rebooted state ("watchdog did not stop!"
+ * + DRAM/peripherals niet schoon gereset).
+ *
+ * Geldt voor alle Moduline baseboards (L4, M1, ...) — daarom op
+ * SoM-niveau.
+ */
+&wdog1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_wdog>;
+	fsl,ext-reset-output;
+	status = "okay";
+};
+
 &iomuxc {
+	pinctrl_wdog: wdoggrp {
+		fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO02_WDOG1_WDOG_B
+			(MX8MM_DSE_X6 | MX8MM_PULL_UP | MX8MM_PULL_ENABLE)
+		>;
+	};
+
 	pinctrl_ethphy_int: etnphy-intgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_ENET_RD2_GPIO1_IO28
