@@ -24,7 +24,14 @@ struct uts_namespace init_uts_ns = {
 #endif
 };
 
-/* FIXED STRINGS! Don't touch! */
+/*
+ * FIXED STRINGS! Don't touch!
+ *
+ * GOcontroll-aanpassing: vervang de standaard "(USER@HOST)" build-host string
+ * door een copyright-vermelding. Houdt de parens-structuur van de banner intact
+ * zodat parsers (lscpu, dmesg-color, etc) niets stuk gaan.
+ */
 const char linux_banner[] =
-	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
+	"Linux version " UTS_RELEASE
+	" (Copyright 2026 GOtech Group BV)"
+	" (" LINUX_COMPILER ") " UTS_VERSION "\n";
