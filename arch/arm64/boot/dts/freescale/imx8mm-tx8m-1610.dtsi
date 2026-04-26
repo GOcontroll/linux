@@ -51,7 +51,16 @@
 
 &fec1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_fec1>;
+	/*
+	 * Apply BOTH FEC pinmux AND PHY-reset GPIO pinmux at &fec1 level,
+	 * not in the mdio subnode. The MDIO subsystem doesn't reliably
+	 * apply pinctrl on subnodes — without explicit ENET_RD3 → GPIO
+	 * mux, the reset GPIO writes hit a pin still configured as
+	 * ENET1_RGMII_RD3 → PHY never sees the reset toggle → MDIO scan
+	 * finds no PHY → end0 permanently DOWN.
+	 * Karo's barebox fork has the same pattern (both pinctrls on FEC).
+	 */
+	pinctrl-0 = <&pinctrl_fec1>, <&pinctrl_ethphy_rst>;
 	phy-mode = "rmii";
 	phy-handle = <&ethphy0>;
 	phy-supply = <&reg_3v3_etn>;
@@ -73,18 +82,18 @@
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_ethphy_rst>;
+		/*
+		 * pinctrl voor reset GPIO is verhuisd naar &fec1 (zie comment
+		 * daar). reset-gpios + delays blijven hier — modern binding,
+		 * MDIO-subsystem leest gpiod uit deze subnode.
+		 *
+		 * Reset-timing matched Karo barebox-config (25 ms reset hold,
+		 * 1 ms post-delay). Karo's barebox draait al jaren betrouwbaar
+		 * met deze waarden op identieke hardware.
+		 */
 		reset-gpios = <&gpio1 29 GPIO_ACTIVE_LOW>;
 		reset-delay-us = <25000>;
-		/*
-		 * SMSC LAN872xA (TX8M-1610 PHY) needs ~16 ms typical
-		 * (50 ms safe) after reset deassertion before MDIO is
-		 * accessible. Original 100 µs was way too short — MDIO
-		 * scan ran before PHY was ready and got "device at
-		 * address 0 is missing", end0 then DOWN forever.
-		 */
-		reset-post-delay-us = <50000>;
+		reset-post-delay-us = <1000>;
 
 		ethphy0: ethernet-phy@0 {
 			reg = <0>;
