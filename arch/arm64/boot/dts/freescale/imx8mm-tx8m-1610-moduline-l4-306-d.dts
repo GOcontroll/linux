@@ -622,10 +622,6 @@
 	status = "disabled";
 };
 
-&wdog1 {
-	status = "okay";
-};
-
 &iomuxc {
 	pinctrl_bt: btgrp {
 		fsl,pins = <
