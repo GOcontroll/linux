@@ -11,7 +11,8 @@
 / {
 	chassis-type = "embedded";
 	compatible = "gocontroll,moduline-l4-306-d", "karo,tx8m-1610", "fsl,imx8mm";
-	hardware = "Moduline L4 V3.06-D";
+	hardware = "Moduline IV V3.06-D";
+	platform = "Moduline L4";
 	model = "GOcontroll Moduline L4";
 
 	aliases {

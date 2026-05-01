@@ -11,7 +11,8 @@
 / {
 	chassis-type = "embedded";
 	compatible = "gocontroll,moduline-m1-111", "karo,tx8m-1610", "fsl,imx8mm";
-	hardware = "Moduline M1 V1.11";
+	hardware = "Moduline Mini V1.11";
+	platform = "Moduline M1";
 	model = "GOcontroll Moduline M1";
 
 	aliases {
