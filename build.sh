@@ -4,12 +4,13 @@ set -e
 export ARCH=arm64
 export CROSS_COMPILE=aarch64-linux-gnu-
 JOBS="${JOBS:-$(nproc)}"
+DEFCONFIG="${DEFCONFIG:-gocontroll_imx8mm_defconfig}"
 
 cd "$(dirname "$0")"
 
 case "${1:-all}" in
     config)
-        make gocontroll_defconfig
+        make "$DEFCONFIG"
         ;;
     menuconfig)
         make menuconfig
