@@ -85,6 +85,13 @@ rsync -a --delete "$MOD_SRC/$KVER/" "$MNT/lib/modules/$KVER/"
 echo "[inject-modules] running depmod -a $KVER inside image"
 chroot "$MNT" /sbin/depmod -a "$KVER"
 
+BUILD_INFO="$MOD_SRC/kernel-build-info"
+if [ -f "$BUILD_INFO" ] && [ -f "$MNT/etc/image-info" ]; then
+    sed -i '/^KERNEL_/d' "$MNT/etc/image-info"
+    cat "$BUILD_INFO" >> "$MNT/etc/image-info"
+    echo "[inject-modules] updated /etc/image-info with kernel build metadata"
+fi
+
 sync
 umount "$MNT"
 
