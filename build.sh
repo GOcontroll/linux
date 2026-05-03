@@ -49,13 +49,20 @@ case "${1:-all}" in
         # en creëren daar 0-byte placeholders die niet te verwijderen zijn.
         find "$OUT/modules/lib/modules" -maxdepth 2 -type l -delete
 
+        cat > "$OUT/modules/kernel-build-info" <<KBINFO
+KERNEL_VERSION="$(make -s kernelversion)"
+KERNEL_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+KERNEL_BUILD_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+KBINFO
+
         # Modules ook naar deploy/modules/ — convergence point voor alle
         # firmware-artefacten. Module-injectie in rootfs.ext4 is een aparte
         # stap die de gebruiker handmatig doet (deploy/inject-modules.bat).
         if [ -d "$DEPLOY" ]; then
             rm -rf "$DEPLOY/modules"
             cp -r "$OUT/modules/lib/modules" "$DEPLOY/modules"
-            echo "  - $DEPLOY/modules/      (kernel modules)"
+            cp "$OUT/modules/kernel-build-info" "$DEPLOY/modules/"
+            echo "  - $DEPLOY/modules/      (kernel modules + build-info)"
         fi
 
         echo "Artifacts in: $OUT"
