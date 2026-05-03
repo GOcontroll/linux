@@ -61,7 +61,7 @@
 	 * finds no PHY → end0 permanently DOWN.
 	 * Karo's barebox fork has the same pattern (both pinctrls on FEC).
 	 */
-	pinctrl-0 = <&pinctrl_fec1>, <&pinctrl_ethphy_rst>;
+	pinctrl-0 = <&pinctrl_fec1>, <&pinctrl_ethphy_rst>, <&pinctrl_ethphy_int>;
 	phy-mode = "rmii";
 	phy-handle = <&ethphy0>;
 	phy-supply = <&reg_3v3_etn>;
@@ -99,6 +99,8 @@
 		ethphy0: ethernet-phy@0 {
 			reg = <0>;
 			clocks = <&clk IMX8MM_CLK_ENET_REF>;
+			interrupt-parent = <&gpio1>;
+			interrupts = <28 IRQ_TYPE_EDGE_FALLING>;
 			smsc,disable-energy-detect;
 		};
 	};
@@ -419,19 +421,10 @@
 };
 
 &wdog1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_wdog>;
 	status = "okay";
 };
 
 &iomuxc {
-	pinctrl_wdog: wdoggrp {
-		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO02_WDOG1_WDOG_B
-			(MX8MM_DSE_X6 | MX8MM_PULL_UP | MX8MM_PULL_ENABLE)
-		>;
-	};
-
 	pinctrl_ethphy_int: etnphy-intgrp {
 		fsl,pins = <
 			MX8MM_IOMUXC_ENET_RD2_GPIO1_IO28

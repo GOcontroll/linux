@@ -209,6 +209,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_can1>;
 		clocks = <&mcp_clock>;
+		vdd-supply = <&reg_vdd_3v3>;
 		xceiver-supply = <&reg_can1_stby>;
 		interrupt-parent = <&gpio3>;
 		interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
@@ -221,6 +222,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_can2>;
 		clocks = <&mcp_clock>;
+		vdd-supply = <&reg_vdd_3v3>;
 		xceiver-supply = <&reg_can2_stby>;
 		interrupt-parent = <&gpio3>;
 		interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
