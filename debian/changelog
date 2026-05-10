@@ -1,3 +1,16 @@
+linux-image-gocontroll (6.12.87) UNRELEASED; urgency=medium
+
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.87
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.86
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.85
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.84
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.83
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.82
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.81
+  * General kernel changes: https://cdn.kernel.org/pub/linux/kernel/v6.x/ChangeLog-6.12.80
+
+ -- Rick-GO <rickgijsberts@gocontroll.com>  Sun, 10 May 2026 17:47:52 +0200
+
 linux-image-gocontroll (6.12.79) UNRELEASED; urgency=medium
 
   * Add additional config options for containers
