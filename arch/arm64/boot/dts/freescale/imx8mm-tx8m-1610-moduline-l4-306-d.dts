@@ -574,8 +574,12 @@
 	status = "okay";
 };
 
+/* OTG: komt op als device (usb-role-switch forceert ID=1 bij probe), de
+ * applicatie schakelt naar host via /sys/class/usb_role/<sw>/role. */
 &usbotg1 {
-	dr_mode = "peripheral";
+	dr_mode = "otg";
+	usb-role-switch;
+	vbus-supply = <&reg_5v0>;
 	disable-over-current;
 	status = "okay";
 };
