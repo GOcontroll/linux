@@ -69,6 +69,89 @@ KBINFO
         echo "  - $OUT/boot/            (full kernel install)"
         echo "  - $OUT/uboot-stage/     (Image.zst + moduline DTBs for projects/Uboot/scripts/mkkernel_itb.sh)"
         ;;
+    multi)
+        # Multi-defconfig orchestrator. Bouwt voor elke defconfig in $DEFCONFIGS
+        # een complete set (Image + modules + DTBs) en plaatst per-cfg output in
+        # $OUT/uboot-stage/<cfg>/ en modules in $OUT/modules-<cfg>/. Voor
+        # backwards-compat copie van de eerste defconfig naar flat
+        # $OUT/uboot-stage/Image + DTBs (zodat de bestaande imx8mm-gebaseerde
+        # mkkernel_itb.sh ongewijzigd blijft werken).
+        #
+        # Gebruik:   DEFCONFIGS="gocontroll_imx8mm_defconfig gocontroll_imx8mp_defconfig" ./build.sh multi
+        OUT="${OUT:-$PWD/out}"
+        DEPLOY="${DEPLOY:-$PWD/../deploy}"
+        DEFCONFIGS="${DEFCONFIGS:-$DEFCONFIG}"
+        mkdir -p "$OUT/boot" "$OUT/uboot-stage"
+        FIRST_CFG=""
+        for cfg in $DEFCONFIGS; do
+            [ -z "$FIRST_CFG" ] && FIRST_CFG="$cfg"
+            echo "==> [multi] building with defconfig=$cfg"
+            make mrproper
+            make "$cfg"
+            make -j"$JOBS" Image Image.zst modules dtbs
+
+            STAGE="$OUT/uboot-stage/$cfg"
+            rm -rf "$STAGE"
+            mkdir -p "$STAGE"
+            cp arch/arm64/boot/Image     "$STAGE/Image"
+            cp arch/arm64/boot/Image.zst "$STAGE/Image.zst"
+            # Filter DTBs per SoC-family op basis van defconfig — voorkomt
+            # dat M1/L4 (imx8mm) DTBs in de imx8mp stage belanden en
+            # andersom. Elke per-cfg stage bevat dus alleen de DTBs die
+            # bij dat SoC horen, conform de gebouwde Image.
+            case "$cfg" in
+                *imx8mm*)  DTB_PREFIX="imx8mm-tx8m-1610-moduline" ;;
+                *imx8mp*)  DTB_PREFIX="imx8mp-tx8p-ml81-moduline" ;;
+                *)         DTB_PREFIX="moduline" ;;  # fallback: alles
+            esac
+            find arch/arm64/boot/dts -name "${DTB_PREFIX}*.dtb"  -exec cp {} "$STAGE/" \;
+            find arch/arm64/boot/dts -name "${DTB_PREFIX}*.dtbo" -exec cp {} "$STAGE/" \;
+
+            MODS="$OUT/modules-$cfg"
+            rm -rf "$MODS"
+            mkdir -p "$MODS"
+            make INSTALL_MOD_PATH="$MODS" modules_install
+            find "$MODS/lib/modules" -maxdepth 2 -type l -delete
+
+            cat > "$MODS/kernel-build-info" <<KBINFO
+KERNEL_VERSION="$(make -s kernelversion)"
+KERNEL_BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+KERNEL_BUILD_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+KERNEL_BUILD_DEFCONFIG="$cfg"
+KBINFO
+        done
+
+        # Backwards-compat: flat output van de eerste defconfig naar uboot-stage/.
+        # Reden: mkkernel_itb.sh (M1/L4) leest uit $OUT/uboot-stage/Image + flat
+        # DTBs — die path-conventie blijft ongewijzigd.
+        if [ -d "$OUT/uboot-stage/$FIRST_CFG" ]; then
+            cp -f "$OUT/uboot-stage/$FIRST_CFG/Image"     "$OUT/uboot-stage/Image"
+            cp -f "$OUT/uboot-stage/$FIRST_CFG/Image.zst" "$OUT/uboot-stage/Image.zst"
+            find "$OUT/uboot-stage/$FIRST_CFG" -maxdepth 1 -name "*moduline*.dtb" -exec cp -f {} "$OUT/uboot-stage/" \;
+        fi
+
+        # Modules naar deploy/. Per-cfg subdir + flat-kopie van eerste defconfig
+        # voor backwards-compat met inject-modules.sh (rootfs13_headless gebruikt
+        # de imx8mm-set, rootfs13_display de imx8mp-set — selectie in inject step).
+        if [ -d "$DEPLOY" ]; then
+            for cfg in $DEFCONFIGS; do
+                rm -rf "$DEPLOY/modules-$cfg"
+                cp -r "$OUT/modules-$cfg/lib/modules" "$DEPLOY/modules-$cfg"
+                cp "$OUT/modules-$cfg/kernel-build-info" "$DEPLOY/modules-$cfg/"
+            done
+            rm -rf "$DEPLOY/modules"
+            cp -r "$OUT/modules-$FIRST_CFG/lib/modules" "$DEPLOY/modules"
+            cp "$OUT/modules-$FIRST_CFG/kernel-build-info" "$DEPLOY/modules/"
+            echo "  - $DEPLOY/modules/             (flat = $FIRST_CFG)"
+            for cfg in $DEFCONFIGS; do
+                echo "  - $DEPLOY/modules-$cfg/"
+            done
+        fi
+
+        echo "Multi-defconfig build done: $DEFCONFIGS"
+        echo "  - $OUT/uboot-stage/<cfg>/    (per-defconfig Image + DTBs + DTBOs)"
+        echo "  - $OUT/uboot-stage/          (flat = $FIRST_CFG, voor mkkernel_itb.sh)"
+        ;;
     deploy)
         # End-to-end: rebuild + install + regenerate kernel.itb + copy naar deploy/.
         # Zelfstandig commando — na `./build.sh deploy` is alle linux-output in
@@ -103,6 +186,18 @@ KBINFO
         ( cd "$UBOOT_DIR" && ./scripts/mkkernel_itb.sh )
         cp -v "$UBOOT_DIR/out/kernel.itb" "$DEPLOY/"
 
+        # HMI1 (i.MX8MP) kernel.itb regen — alleen als de overlay is gebouwd:
+        # vereist $UBOOT_DIR/out/bl31-mp.bin (uit `make atf-mp`) én een
+        # uboot-stage/gocontroll_imx8mp_defconfig/ subdir met Image+DTBs (uit
+        # `./build.sh multi` met imx8mp_defconfig erbij).
+        if [ -x "$UBOOT_DIR/scripts/mkkernel_itb_hmi1.sh" ] \
+           && [ -f "$UBOOT_DIR/out/bl31-mp.bin" ] \
+           && [ -d "$OUT/uboot-stage/gocontroll_imx8mp_defconfig" ]; then
+            echo "[deploy] regenerating kernel_hmi1.itb"
+            ( cd "$UBOOT_DIR" && ./scripts/mkkernel_itb_hmi1.sh )
+            cp -v "$UBOOT_DIR/out/kernel_hmi1.itb" "$DEPLOY/"
+        fi
+
         # Auto-inject de zojuist gebouwde modules in elke rootfs in deploy/.
         # Houdt deploy/ "ready-to-flash" zonder dat de gebruiker er op moet
         # letten. Idempotent — slaat per image over als die niet bestaat.
@@ -122,7 +217,9 @@ KBINFO
         echo "[deploy] done — kernel + modules + kernel.itb (+ rootfs met modules) in $DEPLOY"
         ;;
     *)
-        echo "Usage: $0 {config|menuconfig|kernel|modules|dtbs|all|install|deploy|clean}"
+        echo "Usage: $0 {config|menuconfig|kernel|modules|dtbs|all|install|multi|deploy|clean}"
+        echo "       multi: bouwt voor elke defconfig in \$DEFCONFIGS (spatie-gescheiden)"
+        echo "              en plaatst per-cfg output in \$OUT/uboot-stage/<cfg>/"
         exit 1
         ;;
 esac
