@@ -68,6 +68,37 @@
 	phy-mode = "rmii";
 	phy-handle = <&ethphy0>;
 	/*
+	 * ENET_POWER (GPIO1_23) voedt de LAN8710. Deze property is niet
+	 * cosmetisch: hij is de enige die de probe-volgorde vastlegt.
+	 * fw_devlink maakt van élke "*-supply" een supplier-link
+	 * (DEFINE_SUFFIX_PROP(regulators, "-supply") in of/property.c), dus
+	 * hiermee is reg_3v3_etn gegarandeerd geprobed — en door
+	 * regulator-always-on/boot-on dus ingeschakeld — vóórdat eqos probet.
+	 *
+	 * Zonder deze regel probet eqos ruim vóór de regulator: in de DTB
+	 * staat ethernet@30bf0000 op regel ~1909 en regulator-3v3-etn pas op
+	 * ~2889, en beide zijn platform-devices op hetzelfde initcall-niveau.
+	 * De MDIO-busreset en phy_probe() draaien dan op een PHY die nog geen
+	 * voeding heeft. Dat leest als een aanwezige-maar-dode bus:
+	 * phy_id 0x00000000 of 0x002000c0 bij de ID-scan, en BMSR 0x0000 in
+	 * genphy_read_abilities(), waarna de supported-mask leeg blijft
+	 * (alleen TP/MII/Pause = 0x6280) en phylink afhaakt met
+	 * "validation of rmii ... failed: -EINVAL" ->
+	 * "__stmmac_open: Cannot attach to PHY (error: -22)".
+	 * Een driver-rebind ná boot werkt altijd, want dan staat de rail al
+	 * lang aan — precies de signatuur waaraan je dit herkent.
+	 *
+	 * Drie referenties bevestigen dit:
+	 *  - &fec1 op de TX8M-1610 (L4/M1) heeft phy-supply wél, en heeft dit
+	 *    probleem daarom nooit gehad.
+	 *  - De oude barebox-build (kernel 6.12.45, GONAS 6.12-display) draait
+	 *    met exact deze eqos/mdio/phy-nodes en werkte, omdat barebox
+	 *    seconden vóór Linux al met de rail aan draaide.
+	 *  - Onder U-Boot SPL Falcon Mode is die marge weg: eqos probet op
+	 *    ~0,63 s en niets houdt de regulator vóór.
+	 */
+	phy-supply = <&reg_3v3_etn>;
+	/*
 	 * MAC-adres uit OCOTP-fuse MAC1 (0x640), niet MAC2 (0x658).
 	 * imx8mp.dtsi volgt de NXP-EVK-conventie: fec -> eth_mac1 (0x640),
 	 * eqos -> eth_mac2 (0x658). De TX8P-ML81 heeft alleen eqos bedraad
@@ -97,30 +128,29 @@
 		 * commentaar daar). reset-timing blijft hier — modern binding,
 		 * het MDIO-subsysteem leest de gpiod uit deze subnode.
 		 *
-		 * reset-post-delay-us is NIET optioneel op deze hardware. De
-		 * SMSC LAN8710/LAN8720 reageert na een koude reset niet meteen
-		 * op MDIO; zonder wachttijd scant de bus te vroeg, leest
-		 * phy_id 0x00000000 en valt terug op "Generic Clause 45 PHY".
-		 * Na een driver-rebind lukt het wél (dan is de PHY al gevoed
-		 * en geklokt) — precies de signatuur waaraan je dit herkent.
+		 * reset-delay-us = 25 ms komt uit Ka-Ro's barebox-config, gelijk
+		 * aan de TX8M-1610. reset-post-delay-us staat op 100 ms; Ka-Ro
+		 * heeft er geen en de TX8M-1610 gebruikt 1 ms.
 		 *
-		 * Gemeten op 2026-08-08, TX8P-ML81 + LAN8710:
-		 *   geen post-delay : phy_id 0x0, generieke driver, NO-CARRIER
-		 *   1 ms (L4-waarde): phy_id 0x0, generieke driver, link wél up
-		 *   100 ms          : phy_id 0x0007c0f1, SMSC-driver gebonden
-		 * De 1 ms uit Karo's barebox-config volstaat op de TX8M-1610
-		 * (L4/M1) maar niet hier: de 8MP levert de 50 MHz RMII-refclk
-		 * zelf (ENET_TD2 → CLOCK_GENERATE_REF_CLK), en de PHY heeft na
-		 * reset meer tijd nodig voordat MDIO betrouwbaar antwoordt.
-		 * Kost 100 ms boot-tijd; zonder dit draait de PHY zonder zijn
-		 * eigen driver (geen errata-workarounds, geen interrupt maar
-		 * polling, en smsc,disable-energy-detect hieronder doet niets).
+		 * Let op bij het interpreteren van oude metingen: alle
+		 * post-delay-experimenten van 2026-08-08 zijn gedaan terwijl de
+		 * PHY nog helemaal niet gevoed was (zie phy-supply op &eqos), dus
+		 * ze zeggen niets over de juiste waarde. De 100 ms staat er nu
+		 * puur als marge. Terugbrengen naar 1 ms is een kandidaat voor
+		 * een aparte meting — niet in dezelfde ronde wijzigen.
 		 */
 		reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 		reset-delay-us = <25000>;
 		reset-post-delay-us = <100000>;
 
 		ethphy0: ethernet-phy@0 {
+			/*
+			 * Bewust géén "ethernet-phy-idAAAA.BBBB"-compatible:
+			 * de bus-scan hoort de LAN8710 gewoon te vinden
+			 * (0x0007c0f1 -> smsc.c) zodra hij gevoed is, en een
+			 * hardcoded ID zou bij een andere modulerevisie
+			 * stilzwijgend de verkeerde driver forceren.
+			 */
 			reg = <0>;
 			interrupt-parent = <&gpio4>;
 			interrupts = <21 IRQ_TYPE_EDGE_FALLING>;
