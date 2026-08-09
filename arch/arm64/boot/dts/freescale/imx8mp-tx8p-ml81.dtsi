@@ -67,6 +67,25 @@
 	assigned-clock-rates = <0>, <100000000>, <50000000>;
 	phy-mode = "rmii";
 	phy-handle = <&ethphy0>;
+	/*
+	 * MAC-adres uit OCOTP-fuse MAC1 (0x640), niet MAC2 (0x658).
+	 * imx8mp.dtsi volgt de NXP-EVK-conventie: fec -> eth_mac1 (0x640),
+	 * eqos -> eth_mac2 (0x658). De TX8P-ML81 heeft alleen eqos bedraad
+	 * (&fec blijft disabled) en Ka-Ro programmeert uitsluitend MAC1;
+	 * MAC2 is ongeprogrammeerd, dus 00:00:00:00:00:00. Zonder deze
+	 * override leest stmmac een ongeldig adres, vindt ook in het
+	 * MAC-register niets (Falcon Mode: U-Boot proper draait nooit en
+	 * zet dat register dus niet) en valt terug op eth_hw_addr_random()
+	 * -> elke boot een ander, locally-administered MAC en bij DHCP
+	 * elke boot een nieuwe lease.
+	 * Op de TX8M-1610 (L4/M1) speelt dit niet: daar is de actieve
+	 * interface &fec1, die in imx8mm.dtsi al naar 0x640 wijst.
+	 * U-Boot leest dezelfde fuse via imx_get_mac_from_fuse(0, ...)
+	 * (arch/arm/mach-imx/mac.c, MAC_FUSE_MX7_OFFSET 0x640), dus
+	 * bootloader en kernel rapporteren nu hetzelfde adres.
+	 */
+	nvmem-cells = <&eth_mac1>;
+	nvmem-cell-names = "mac-address";
 	status = "okay";
 
 	mdio {
