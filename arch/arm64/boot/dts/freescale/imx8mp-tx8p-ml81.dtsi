@@ -46,7 +46,17 @@
 
 &eqos {
 	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&pinctrl_eqos>;
+	/*
+	 * PHY-reset en PHY-interrupt pinmux hier op &eqos, niet in de mdio-
+	 * of phy-subnode. Het MDIO-subsysteem past pinctrl op subnodes niet
+	 * betrouwbaar toe; blijft de mux dan hangen op de reset-default van de
+	 * pin (SAI2_RXC = SAI2_RX_BCLK), dan komt de reset-puls nooit bij de
+	 * PHY aan. Het werkte tot 2026-08-08 alleen omdat de bootloader die
+	 * pin toevallig al op ALT5 (GPIO4_IO22) achterliet — daar wil je niet
+	 * op leunen. Zelfde patroon als &fec1 op de TX8M-1610 (L4/M1).
+	 */
+	pinctrl-0 = <&pinctrl_eqos>, <&pinctrl_ethphy_rst_b>,
+		    <&pinctrl_ethphy_int_b>;
 	pinctrl-1 = <&pinctrl_eqos_sleep>;
 	assigned-clocks = <&clk IMX8MP_CLK_ENET_AXI>,
 			  <&clk IMX8MP_CLK_ENET_QOS_TIMER>,
@@ -63,15 +73,36 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		compatible = "snps,dwmac-mdio";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_ethphy_rst_b>;
+		/*
+		 * pinctrl voor reset/interrupt is verhuisd naar &eqos (zie het
+		 * commentaar daar). reset-timing blijft hier — modern binding,
+		 * het MDIO-subsysteem leest de gpiod uit deze subnode.
+		 *
+		 * reset-post-delay-us is NIET optioneel op deze hardware. De
+		 * SMSC LAN8710/LAN8720 reageert na een koude reset niet meteen
+		 * op MDIO; zonder wachttijd scant de bus te vroeg, leest
+		 * phy_id 0x00000000 en valt terug op "Generic Clause 45 PHY".
+		 * Na een driver-rebind lukt het wél (dan is de PHY al gevoed
+		 * en geklokt) — precies de signatuur waaraan je dit herkent.
+		 *
+		 * Gemeten op 2026-08-08, TX8P-ML81 + LAN8710:
+		 *   geen post-delay : phy_id 0x0, generieke driver, NO-CARRIER
+		 *   1 ms (L4-waarde): phy_id 0x0, generieke driver, link wél up
+		 *   100 ms          : phy_id 0x0007c0f1, SMSC-driver gebonden
+		 * De 1 ms uit Karo's barebox-config volstaat op de TX8M-1610
+		 * (L4/M1) maar niet hier: de 8MP levert de 50 MHz RMII-refclk
+		 * zelf (ENET_TD2 → CLOCK_GENERATE_REF_CLK), en de PHY heeft na
+		 * reset meer tijd nodig voordat MDIO betrouwbaar antwoordt.
+		 * Kost 100 ms boot-tijd; zonder dit draait de PHY zonder zijn
+		 * eigen driver (geen errata-workarounds, geen interrupt maar
+		 * polling, en smsc,disable-energy-detect hieronder doet niets).
+		 */
 		reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 		reset-delay-us = <25000>;
+		reset-post-delay-us = <100000>;
 
 		ethphy0: ethernet-phy@0 {
 			reg = <0>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_ethphy_int_b>;
 			interrupt-parent = <&gpio4>;
 			interrupts = <21 IRQ_TYPE_EDGE_FALLING>;
 			clocks = <&clk IMX8MP_CLK_ENET_QOS>;
