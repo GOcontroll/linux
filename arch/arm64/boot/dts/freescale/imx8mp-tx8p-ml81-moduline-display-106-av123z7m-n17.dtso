@@ -12,7 +12,7 @@
 /plugin/;
 
 &{/} {
-	model = "GOcontroll Moduline Display with BOE av123z7m-n17 display";
+	model = "GOcontroll Moduline HMI1 with BOE av123z7m-n17 display";
 
 	panel {
 		compatible = "boe,av123z7m-n17";

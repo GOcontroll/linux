@@ -13,7 +13,7 @@
 /plugin/;
 
 &{/} {
-	model = "GOcontroll Moduline Display with HKC pc156cs01 display";
+	model = "GOcontroll Moduline HMI1 with HKC pc156cs01 display";
 
 	backlight: backlight {
 		compatible = "pwm-backlight";

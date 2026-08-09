@@ -13,7 +13,7 @@
 	compatible = "gocontroll,moduline-display-107", "karo,tx8p-ml81", "fsl,imx8mp";
 	hardware = "Moduline Display V1.07";
 	platform = "Moduline HMI1";
-	model = "GOcontroll Moduline Display baseboard";
+	model = "GOcontroll Moduline HMI1 baseboard";
 
 	aliases {
 		ethernet0 = &eqos;
