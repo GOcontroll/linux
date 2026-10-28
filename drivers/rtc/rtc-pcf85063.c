@@ -10,6 +10,7 @@
  * Author: Alexandre Belloni <alexandre.belloni@bootlin.com>
  */
 #include <linux/clk-provider.h>
+#include <linux/delay.h>
 #include <linux/i2c.h>
 #include <linux/bcd.h>
 #include <linux/rtc.h>
@@ -559,6 +560,40 @@ static const struct pcf85063_config config_rv8263 = {
 	.force_cap_7000 = 1,
 };
 
+/*
+ * The first access tells "chip absent" apart from "bus not ready". A bus
+ * that another device holds for a moment after a short power interruption
+ * returns -EAGAIN or -ETIMEDOUT, and failing the probe on that leaves the
+ * system without an RTC and, because hctosys only runs once at boot, with
+ * an unset clock. Retry those for a bounded time; this only costs boot time
+ * when the bus is actually stuck.
+ */
+#define PCF85063_PROBE_TIMEOUT_MS	5000
+#define PCF85063_PROBE_RETRY_MS		100
+
+static int pcf85063_probe_presence(struct i2c_client *client,
+				   struct regmap *regmap, unsigned int *val)
+{
+	unsigned long deadline = jiffies +
+		msecs_to_jiffies(PCF85063_PROBE_TIMEOUT_MS);
+	unsigned int attempts = 0;
+	int err;
+
+	for (;;) {
+		attempts++;
+		err = regmap_read(regmap, PCF85063_REG_SC, val);
+		if (err != -EAGAIN && err != -ETIMEDOUT && err != -EBUSY)
+			break;
+		if (time_after(jiffies, deadline))
+			break;
+		msleep(PCF85063_PROBE_RETRY_MS);
+	}
+
+	if (!err && attempts > 1)
+		dev_info(&client->dev, "present after %u attempts\n", attempts);
+	return err;
+}
+
 static int pcf85063_probe(struct i2c_client *client)
 {
 	struct pcf85063 *pcf85063;
@@ -590,7 +625,7 @@ static int pcf85063_probe(struct i2c_client *client)
 
 	i2c_set_clientdata(client, pcf85063);
 
-	err = regmap_read(pcf85063->regmap, PCF85063_REG_SC, &tmp);
+	err = pcf85063_probe_presence(client, pcf85063->regmap, &tmp);
 	if (err) {
 		return dev_err_probe(&client->dev, err, "RTC chip is not present\n");
 	}
