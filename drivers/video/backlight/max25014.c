@@ -7,11 +7,17 @@
  */
 
 #include <linux/backlight.h>
+#include <linux/delay.h>
 #include <linux/gpio/consumer.h>
 #include <linux/i2c.h>
+#include <linux/jiffies.h>
+#include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/platform_data/max25014.h>
 #include <linux/regmap.h>
+#include <linux/regulator/consumer.h>
 #include <linux/slab.h>
+#include <linux/workqueue.h>
 
 #define MAX25014_ISET_DEFAULT_100 11U
 #define DEFAULT_BL_NAME "lcd-backlight"
@@ -55,6 +61,25 @@
 #define MAX25014_HW_RST         BIT(2)
 #define MAX25014_FPWM           GENMASK(6,4)
 
+/*
+ * The chip sits on the display-side supply. After a short power interruption
+ * that rail can still be rising, or the bus can be held, when the driver
+ * probes; both clear within seconds. Keep retrying for this long before
+ * giving up, instead of failing the whole display chain on the first error.
+ */
+#define MAX25014_PROBE_TIMEOUT_MS	10000U
+#define MAX25014_PROBE_RETRY_MS		100U
+
+/*
+ * A dip on the display-side supply can reset the chip to its power-on
+ * defaults while the SoC keeps running, which turns the backlight off for
+ * good. Poll ISET to notice and reprogram it. 0 disables the poll.
+ */
+static unsigned int watchdog_ms = 1000;
+module_param(watchdog_ms, uint, 0644);
+MODULE_PARM_DESC(watchdog_ms,
+		 "Interval in ms to check the chip for a power-on reset (0 = off)");
+
 struct max25014;
 
 struct max25014 {
@@ -67,6 +92,8 @@ struct max25014 {
 	struct max25014_platform_data *pdata;
 	struct gpio_desc *enable;
 	struct regulator *vin; /* regulator for boost converter Vin rail */
+	struct mutex lock; /* serialises chip programming */
+	struct delayed_work watchdog;
 };
 
 static const struct regmap_config max25014_regmap_config = {
@@ -183,7 +210,24 @@ static int max25014_check_errors(struct max25014 *maxim)
 	}
 	return 0;
 i2c_err:
-	return dev_err_probe(maxim->dev, ret, "Could not read errors\n");
+	/* Reported by the caller, which may still retry. */
+	return ret;
+}
+
+static uint32_t max25014_iset(struct max25014 *maxim)
+{
+	return maxim->pdata->iset | MAX25014_ENABLE | MAX25014_PSEN;
+}
+
+/*
+ * Errors that mean "the bus or the chip is not ready yet" rather than "this
+ * chip is broken": arbitration lost or a held bus, and a NAK from a chip whose
+ * supply is still rising.
+ */
+static bool max25014_is_transient(int err)
+{
+	return err == -EAGAIN || err == -ETIMEDOUT || err == -EBUSY ||
+	       err == -ENXIO || err == -EREMOTEIO;
 }
 
 /*
@@ -192,8 +236,10 @@ i2c_err:
  * 3. set initial brightness
  * 4. set setting register
  * 5. enable the backlight
+ *
+ * Returns the raw I2C error so the caller can decide whether to retry.
  */
-static int max25014_configure(struct max25014 *maxim)
+static int max25014_configure(struct max25014 *maxim, uint32_t brightness)
 {
 	int ret;
 	uint32_t val;
@@ -201,45 +247,166 @@ static int max25014_configure(struct max25014 *maxim)
 	ret = regmap_write(maxim->regmap, MAX25014_DISABLE,
 			   strings_mask(maxim->pdata->strings));
 	if (ret != 0)
-		goto i2c_err;
+		return ret;
 
 	ret = regmap_write(maxim->regmap, MAX25014_IMODE, MAX25014_DIM_MODE);
 	if (ret != 0)
-		goto i2c_err;
+		return ret;
 
-	ret = max25014_register_control(maxim->regmap,
-				  maxim->pdata->initial_brightness);
+	ret = max25014_register_control(maxim->regmap, brightness);
 	if (ret != 0)
-		goto i2c_err;
+		return ret;
 
 	ret = regmap_read(maxim->regmap, MAX25014_SETTING, &val);
 	if (ret != 0)
-		goto i2c_err;
+		return ret;
 
 	ret = regmap_write(
 		maxim->regmap, MAX25014_SETTING,
 		val & ~MAX25014_FPWM);
 	if (ret != 0)
-		goto i2c_err;
+		return ret;
 
-	ret = regmap_write(maxim->regmap, MAX25014_ISET,
-			   maxim->pdata->iset | MAX25014_ENABLE | MAX25014_PSEN);
+	return regmap_write(maxim->regmap, MAX25014_ISET, max25014_iset(maxim));
+}
+
+/*
+ * Writes issued while the chip's supply is still rising can be lost while a
+ * later read succeeds, which leaves a probed but unprogrammed chip. Read the
+ * configuration back and report a mismatch as transient so it is retried.
+ */
+static int max25014_verify(struct max25014 *maxim)
+{
+	uint32_t val;
+	int ret;
+
+	ret = regmap_read(maxim->regmap, MAX25014_DISABLE, &val);
 	if (ret != 0)
-		goto i2c_err;
+		return ret;
+	if ((val & 0x0f) != strings_mask(maxim->pdata->strings))
+		return -EAGAIN;
+
+	ret = regmap_read(maxim->regmap, MAX25014_IMODE, &val);
+	if (ret != 0)
+		return ret;
+	if (val != MAX25014_DIM_MODE)
+		return -EAGAIN;
+
+	ret = regmap_read(maxim->regmap, MAX25014_SETTING, &val);
+	if (ret != 0)
+		return ret;
+	if (val & MAX25014_FPWM)
+		return -EAGAIN;
+
+	ret = regmap_read(maxim->regmap, MAX25014_ISET, &val);
+	if (ret != 0)
+		return ret;
+	if (val != max25014_iset(maxim))
+		return -EAGAIN;
 
 	return 0;
-i2c_err:
-	return dev_err_probe(maxim->dev, ret, "Could not configure\n");
+}
+
+static int max25014_program(struct max25014 *maxim, uint32_t brightness)
+{
+	int ret;
+
+	ret = max25014_configure(maxim, brightness);
+	if (ret != 0)
+		return ret;
+	return max25014_verify(maxim);
+}
+
+/*
+ * Bring the chip up at probe time, retrying transient failures for up to
+ * MAX25014_PROBE_TIMEOUT_MS. A failure here is terminal for the driver (and,
+ * through the panel's backlight link, for the whole display pipeline), so a
+ * bus that is busy for a moment must not count as one.
+ */
+static int max25014_init_chip(struct max25014 *maxim)
+{
+	unsigned long deadline = jiffies +
+		msecs_to_jiffies(MAX25014_PROBE_TIMEOUT_MS);
+	unsigned int attempts = 0;
+	int ret;
+
+	for (;;) {
+		attempts++;
+		ret = max25014_check_errors(maxim);
+		if (ret == 0)
+			ret = max25014_program(maxim,
+					       maxim->pdata->initial_brightness);
+		if (ret == 0 || !max25014_is_transient(ret) ||
+		    time_after(jiffies, deadline))
+			break;
+		msleep(MAX25014_PROBE_RETRY_MS);
+	}
+
+	if (ret == 0 && attempts > 1)
+		dev_info(maxim->dev, "configured after %u attempts\n", attempts);
+	else if (ret != 0)
+		dev_err(maxim->dev, "could not configure after %u attempts: %d\n",
+			attempts, ret);
+	return ret;
 }
 
 static int max25014_update_status(struct backlight_device *bl_dev)
 {
 	struct max25014 *maxim = bl_get_data(bl_dev);
+	int ret;
 
 	if (bl_dev->props.state & BL_CORE_SUSPENDED)
 		bl_dev->props.brightness = 0;
 
-	return max25014_register_control(maxim->regmap, bl_dev->props.brightness);
+	mutex_lock(&maxim->lock);
+	/* Honours bl_power and fb blanking, so panel disable turns it off. */
+	ret = max25014_register_control(maxim->regmap,
+					backlight_get_brightness(bl_dev));
+	mutex_unlock(&maxim->lock);
+	return ret;
+}
+
+static void max25014_schedule_watchdog(struct max25014 *maxim)
+{
+	unsigned int ms = READ_ONCE(watchdog_ms);
+
+	if (ms)
+		schedule_delayed_work(&maxim->watchdog, msecs_to_jiffies(ms));
+}
+
+/*
+ * The chip has no interrupt, so a power-on reset while the SoC keeps running
+ * is only visible in its registers: ISET drops back to its default and the
+ * ENABLE bit with it. Reprogram the chip with the current brightness. A read
+ * error is not acted on; the bus may simply be busy, and the next poll looks
+ * again.
+ */
+static void max25014_watchdog_work(struct work_struct *work)
+{
+	struct max25014 *maxim = container_of(to_delayed_work(work),
+					      struct max25014, watchdog);
+	uint32_t val;
+	int ret;
+
+	if (maxim->bl->props.state & BL_CORE_SUSPENDED)
+		goto out;
+
+	mutex_lock(&maxim->lock);
+	ret = regmap_read(maxim->regmap, MAX25014_ISET, &val);
+	if (ret == 0 && val != max25014_iset(maxim)) {
+		dev_warn(maxim->dev,
+			 "chip lost its configuration (ISET 0x%02x, expected 0x%02x), reprogramming\n",
+			 val, max25014_iset(maxim));
+		ret = max25014_program(maxim,
+				       backlight_get_brightness(maxim->bl));
+		if (ret)
+			dev_err(maxim->dev, "reprogramming failed: %d\n", ret);
+		else
+			dev_info(maxim->dev, "backlight restored\n");
+	}
+	mutex_unlock(&maxim->lock);
+out:
+	max25014_schedule_watchdog(maxim);
 }
 
 static const struct backlight_ops max25014_bl_ops = {
@@ -407,17 +574,12 @@ static int max25014_probe(struct i2c_client *cl)
 	}
 
 	i2c_set_clientdata(cl, maxim);
+	mutex_init(&maxim->lock);
+	INIT_DELAYED_WORK(&maxim->watchdog, max25014_watchdog_work);
 
-	ret = max25014_check_errors(maxim);
-	if (ret) { /* error is already reported in the above function */
+	ret = max25014_init_chip(maxim);
+	if (ret) /* already reported */
 		goto disable_full;
-	}
-
-	ret = max25014_configure(maxim);
-	if (ret) {
-		dev_err(maxim->dev, "device config err: %d", ret);
-		goto disable_full;
-	}
 
 	ret = max25014_backlight_register(maxim);
 	if (ret) {
@@ -433,6 +595,7 @@ static int max25014_probe(struct i2c_client *cl)
 	}
 
 	dev_info(maxim->dev, "max25014 probed.\n");
+	max25014_schedule_watchdog(maxim);
 
 	return 0;
 
@@ -449,6 +612,7 @@ static void max25014_remove(struct i2c_client *cl)
 {
 	struct max25014 *maxim = i2c_get_clientdata(cl);
 
+	cancel_delayed_work_sync(&maxim->watchdog);
 	maxim->bl->props.brightness = 0;
 	max25014_update_status(maxim->bl);
 	if (maxim->enable)
@@ -473,6 +637,8 @@ static struct i2c_driver max25014_driver = {
 	.driver = {
 		.name = "max25014",
 		.of_match_table = of_match_ptr(max25014_dt_ids),
+		/* Probe may wait out a busy bus; do not hold up the boot. */
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	},
 	.probe = max25014_probe,
 	.remove = max25014_remove,
