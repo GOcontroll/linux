@@ -83,7 +83,7 @@ static const struct regmap_config max25014_regmap_config = {
  */
 static uint8_t strings_mask(uint32_t *strings)
 {
-	uint8_t res, i;
+	uint8_t res = 0, i;
 	for (i = 0; i < 4; i++) {
 		if (strings[i] == 0)
 			res |= 1 << i;
@@ -147,7 +147,7 @@ static int max25014_check_errors(struct max25014 *maxim)
 		return -EIO;
 	}
 
-	ret = regmap_read(maxim->regmap, MAX25014_SHORT_GND, &val);
+	ret = regmap_read(maxim->regmap, MAX25014_SHORT_LED, &val);
 	if (ret != 0)
 		goto i2c_err;
 	if (val > 0) {
