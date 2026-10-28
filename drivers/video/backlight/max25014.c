@@ -366,12 +366,16 @@ static int max25014_update_status(struct backlight_device *bl_dev)
 	return ret;
 }
 
+/*
+ * While the poll is disabled the work keeps ticking at the default interval
+ * without touching the chip, so writing a non-zero watchdog_ms at runtime
+ * takes effect without rebinding the driver.
+ */
 static void max25014_schedule_watchdog(struct max25014 *maxim)
 {
 	unsigned int ms = READ_ONCE(watchdog_ms);
 
-	if (ms)
-		schedule_delayed_work(&maxim->watchdog, msecs_to_jiffies(ms));
+	schedule_delayed_work(&maxim->watchdog, msecs_to_jiffies(ms ?: 1000));
 }
 
 /*
@@ -388,7 +392,8 @@ static void max25014_watchdog_work(struct work_struct *work)
 	uint32_t val;
 	int ret;
 
-	if (maxim->bl->props.state & BL_CORE_SUSPENDED)
+	if (!READ_ONCE(watchdog_ms) ||
+	    maxim->bl->props.state & BL_CORE_SUSPENDED)
 		goto out;
 
 	mutex_lock(&maxim->lock);
