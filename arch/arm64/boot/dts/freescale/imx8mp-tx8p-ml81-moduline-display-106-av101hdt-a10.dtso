@@ -106,7 +106,7 @@
 		reg = <0x6f>;
 		compatible = "maxim,max25014";
 		bl-name = "max25014";
-		default-brightness = <50>;
+		default-brightness = <0>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_backlight>;
 		enable-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;

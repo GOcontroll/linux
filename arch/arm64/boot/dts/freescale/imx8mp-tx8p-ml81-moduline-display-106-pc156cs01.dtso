@@ -25,7 +25,7 @@
 		enable-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 
 		brightness-levels = <0 50 100>;
-		default-brightness-level = <50>;
+		default-brightness-level = <0>;
 		num-interpolated-steps = <50>;
 	};
 
