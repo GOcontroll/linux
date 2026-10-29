@@ -203,12 +203,28 @@ KBINFO
         # letten. Idempotent — slaat per image over als die niet bestaat.
         # Vereist sudo (mount + chroot); als geen NOPASSWD geconfigureerd
         # vraagt sudo om een wachtwoord.
+        #
+        # Per image de modules van de eigen SoC: headless = imx8mm (L4/M1),
+        # display = imx8mp (HMI1). deploy/modules is de flat staging van alleen
+        # de eerste defconfig en past maar bij één image (pitfall 61); een set
+        # telt pas als zijn kernel-build-info de verwachte defconfig noemt.
         INJECT="$PWD/scripts/inject-modules.sh"
         if [ -x "$INJECT" ]; then
-            for img in "$DEPLOY"/rootfs13_headless.ext4 "$DEPLOY"/rootfs13_display.ext4; do
+            for pair in rootfs13_headless.ext4:gocontroll_imx8mm_defconfig \
+                        rootfs13_display.ext4:gocontroll_imx8mp_defconfig; do
+                img="$DEPLOY/${pair%%:*}"; cfg="${pair##*:}"; mods=""
                 [ -f "$img" ] || continue
-                echo "[deploy] injecting modules into $img"
-                sudo "$INJECT" "$img" "$DEPLOY/modules"
+                for d in "$DEPLOY/modules-$cfg" "$DEPLOY/modules"; do
+                    if grep -qx "KERNEL_BUILD_DEFCONFIG=\"$cfg\"" "$d/kernel-build-info" 2>/dev/null; then
+                        mods="$d"; break
+                    fi
+                done
+                if [ -z "$mods" ]; then
+                    echo "[deploy] WARN: geen modules van $cfg — $img niet geinjecteerd"
+                    continue
+                fi
+                echo "[deploy] injecting modules into $img ← $mods"
+                sudo "$INJECT" "$img" "$mods"
             done
         else
             echo "[deploy] WARN: $INJECT niet executable — sla module-inject over"
